@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_color"
+    android:fillViewport="true"
+    tools:context=".feature.auth.presentation.login.LoginActivity">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="32dp">
+
+        <FrameLayout
+            android:id="@+id/vLogo"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:background="@drawable/logo_background"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:layout_width="75dp"
+                android:layout_height="75dp"
+                android:layout_gravity="center"
+                android:contentDescription="@string/app_name"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_simple_logo" />
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:fontFamily="sans-serif-medium"
+            android:letterSpacing="0.02"
+            android:text="@string/welcome_back"
+            android:textColor="@color/text_color"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/vLogo" />
+
+        <TextView
+            android:id="@+id/tvSubtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:alpha="0.6"
+            android:fontFamily="sans-serif"
+            android:letterSpacing="0.01"
+            android:text="@string/login_to_your_account"
+            android:textColor="@color/text_color"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvTitle" />
+
+        <!-- Decorative Line -->
+        <View
+            android:id="@+id/vDivider"
+            android:layout_width="60dp"
+            android:layout_height="3dp"
+            android:layout_marginTop="32dp"
+            android:background="@color/text_color"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvSubtitle" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilEmailUsername"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="48dp"
+            android:textColorHint="@color/text_color"
+            app:boxStrokeErrorColor="@color/text_color"
+            app:boxStrokeWidth="2dp"
+            app:cursorErrorColor="@color/text_color"
+            app:endIconMode="clear_text"
+            app:endIconTint="@color/text_color"
+            app:errorIconTint="@color/red_error"
+            app:errorTextColor="@color/red_error"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/vDivider"
+            app:startIconDrawable="@android:drawable/sym_action_email"
+            app:startIconTint="@color/text_color">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etEmailUsername"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif"
+                android:hint="@string/email_or_username"
+                android:inputType="textEmailAddress"
+                android:paddingTop="16dp"
+                android:paddingBottom="16dp"
+                android:textColor="@color/text_color"
+                android:textColorHint="@color/text_color"
+                android:textSize="15sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilPassword"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:textColorHint="@color/text_color"
+            app:boxStrokeErrorColor="@color/text_color"
+            app:boxStrokeWidth="2dp"
+            app:cursorErrorColor="@color/text_color"
+            app:endIconMode="password_toggle"
+            app:endIconTint="@color/text_color"
+            app:errorIconTint="@color/red_error"
+            app:errorTextColor="@color/red_error"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tilEmailUsername"
+            app:startIconDrawable="@android:drawable/ic_lock_lock"
+            app:startIconTint="@color/text_color">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif"
+                android:hint="@string/password"
+                android:inputType="textPassword"
+                android:paddingTop="16dp"
+                android:paddingBottom="16dp"
+                android:textColor="@color/text_color"
+                android:textColorHint="@color/text_color"
+                android:textSize="15sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/tvForgotPassword"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:fontFamily="sans-serif-medium"
+            android:letterSpacing="0.01"
+            android:padding="8dp"
+            android:text="@string/forgot_password"
+            android:textColor="@color/text_color"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tilPassword" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnLogin"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_marginTop="32dp"
+            android:fontFamily="sans-serif-medium"
+            android:letterSpacing="0.08"
+            android:text="@string/login"
+            android:textColor="@color/background_color"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:backgroundTint="@color/text_color"
+            app:cornerRadius="8dp"
+            app:elevation="0dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvForgotPassword" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminateTint="@color/text_color"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/btnLogin"
+            app:layout_constraintEnd_toEndOf="@id/btnLogin"
+            app:layout_constraintStart_toStartOf="@id/btnLogin"
+            app:layout_constraintTop_toTopOf="@id/btnLogin" />
+
+        <!-- Divider with OR text -->
+        <View
+            android:id="@+id/vDividerLeft"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginEnd="16dp"
+            android:alpha="0.2"
+            android:background="@color/text_color"
+            app:layout_constraintBottom_toBottomOf="@id/tvOr"
+            app:layout_constraintEnd_toStartOf="@id/tvOr"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btnLogin" />
+
+        <TextView
+            android:id="@+id/tvOr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:alpha="0.5"
+            android:fontFamily="sans-serif-medium"
+            android:text="@string/or"
+            android:textColor="@color/text_color"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btnLogin" />
+
+        <View
+            android:id="@+id/vDividerRight"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginStart="16dp"
+            android:alpha="0.2"
+            android:background="@color/text_color"
+            app:layout_constraintBottom_toBottomOf="@id/tvOr"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/tvOr"
+            app:layout_constraintTop_toTopOf="@id/tvOr" />
+
+        <LinearLayout
+            android:id="@+id/llRegister"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:layout_marginBottom="32dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvOr">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:alpha="0.7"
+                android:fontFamily="sans-serif"
+                android:text="@string/don_t_have_an_account"
+                android:textColor="@color/text_color"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tvRegister"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:fontFamily="sans-serif-medium"
+                android:padding="4dp"
+                android:text="@string/register"
+                android:textColor="@color/text_color"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

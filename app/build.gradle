@@ -21,7 +21,7 @@ android {
         Properties properties = new Properties()
         properties.load(project.rootProject.file('local.properties').newDataInputStream())
 
-        buildConfigField "String", "BASE_URL", "\"${properties.getProperty('BASE_URL', 'https://logbook-app-k9m9.onrender.com/')}\""
+        buildConfigField "String", "BASE_URL", "\"${properties.getProperty('BASE_URL_DEBUG')}\""
     }
 
     buildTypes {

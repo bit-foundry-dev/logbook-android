@@ -1,5 +1,8 @@
- package com.bit.logbook;
+package com.bit.logbook;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
@@ -8,12 +11,24 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.bit.logbook.core.utils.Constants;
+import com.bit.logbook.feature.auth.presentation.login.LoginActivity;
+
 public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
+
+        SharedPreferences sharedPreferences = getSharedPreferences(Constants.AUTH_PREFS_NAME, Context.MODE_PRIVATE);
+
+        if (sharedPreferences.getString(Constants.KEY_USER_TOKEN, null) == null) {
+            startActivity(new Intent(this, LoginActivity.class));
+            finishAffinity();
+        }
+
+
         setContentView(R.layout.activity_main);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());

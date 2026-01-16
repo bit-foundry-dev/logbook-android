@@ -2,8 +2,36 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.LogBook" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">@color/black</item>
+
+        <item name="alertDialogTheme">@style/CustomDialogStyle</item>
+        <item name="materialAlertDialogTheme">@style/CustomDialogStyle</item>
     </style>
 
     <style name="Theme.LogBook" parent="Base.Theme.LogBook" />
+
+    <style name="CustomDialogStyle" parent="Theme.Material3.Light.Dialog.Alert">
+        <item name="android:backgroundTint">@color/background_color</item>
+
+        <item name="android:textColorPrimary">@color/text_color</item>
+
+        <item name="colorPrimary">@color/text_color</item>
+        <item name="colorOnPrimary">@color/background_color</item>
+
+        <item name="android:buttonBarButtonStyle">@style/CustomDialogButton</item>
+
+        <item name="shapeAppearanceMediumComponent">@style/DialogCorners</item>
+
+    </style>
+
+    <style name="CustomDialogButton" parent="Widget.Material3.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/text_color</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <style name="DialogCorners" parent="ShapeAppearance.Material3.MediumComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
+    </style>
 </resources>
