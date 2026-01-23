@@ -96,6 +96,23 @@ public class RegisterActivity extends BaseActivity {
             finish();
             overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
         });
+
+        // Clear errors when user starts typing
+        etEmail.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) tilEmail.setError(null);
+        });
+
+        etUsername.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) tilUsername.setError(null);
+        });
+
+        etPassword.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) tilPassword.setError(null);
+        });
+
+        etConfirmPassword.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) tilConfirmPassword.setError(null);
+        });
     }
 
     @Override
@@ -125,7 +142,62 @@ public class RegisterActivity extends BaseActivity {
         tilPassword.setError(null);
         tilConfirmPassword.setError(null);
 
-        viewModel.register(email, username, password, confirmPassword);
+        boolean isValid = true;
+
+        // Email validation
+        if (email.isEmpty()) {
+            tilEmail.setError(getString(R.string.email_required));
+            isValid = false;
+        } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            tilEmail.setError(getString(R.string.invalid_email_format));
+            isValid = false;
+        }
+
+        // Username validation
+        if (username.isEmpty()) {
+            tilUsername.setError(getString(R.string.username_required));
+            isValid = false;
+        } else if (username.length() < 3) {
+            tilUsername.setError(getString(R.string.username_length));
+            isValid = false;
+        }
+
+        // Password validation
+        String passwordError = validatePassword(password);
+        if (passwordError != null) {
+            tilPassword.setError(passwordError);
+            isValid = false;
+        }
+
+        // Confirm password validation
+        if (confirmPassword.isEmpty()) {
+            tilConfirmPassword.setError(getString(R.string.confirm_password));
+            isValid = false;
+        } else if (!password.equals(confirmPassword)) {
+            tilConfirmPassword.setError(getString(R.string.passwords_mismatch));
+            isValid = false;
+        }
+
+        // Only proceed if all validations pass
+        if (isValid) {
+            viewModel.register(email, username, password, confirmPassword);
+        }
+    }
+
+    private String validatePassword(String password) {
+        if (password.isEmpty()) {
+            return getString(R.string.password_required);
+        }
+        if (password.length() < 8) {
+            return getString(R.string.password_length);
+        }
+        if (!password.matches(".*[A-Z].*")) {
+            return getString(R.string.password_one_capital_letter);
+        }
+        if (!password.matches(".*[0-9].*")) {
+            return getString(R.string.password_one_number);
+        }
+        return null;
     }
 
     private void showVerificationDialog(String email) {

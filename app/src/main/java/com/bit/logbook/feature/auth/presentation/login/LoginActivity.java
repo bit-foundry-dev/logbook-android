@@ -77,6 +77,15 @@ public class LoginActivity extends BaseActivity {
             startActivity(new Intent(this, RegisterActivity.class));
             overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
         });
+
+        // Clear errors when user starts typing
+        etEmailUsername.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) tilEmailUsername.setError(null);
+        });
+
+        etPassword.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) tilPassword.setError(null);
+        });
     }
 
     @Override
@@ -89,7 +98,7 @@ public class LoginActivity extends BaseActivity {
                 Toast.makeText(this, getString(R.string.login_welcome) + state.getUser().getUsername(),
                         Toast.LENGTH_SHORT).show();
                 // Navigate to main screen
-                 startActivity(new Intent(this, MainActivity.class));
+                startActivity(new Intent(this, MainActivity.class));
                 finish();
             } else if (state.isEmailNotVerified()) {
                 hideLoading();
@@ -117,17 +126,24 @@ public class LoginActivity extends BaseActivity {
         tilEmailUsername.setError(null);
         tilPassword.setError(null);
 
+        boolean isValid = true;
+
+        // Email or Username validation
         if (emailOrUsername.isEmpty()) {
             tilEmailUsername.setError(getString(R.string.email_username_required));
-            return;
+            isValid = false;
         }
 
+        // Password validation
         if (password.isEmpty()) {
             tilPassword.setError(getString(R.string.password_required));
-            return;
+            isValid = false;
         }
 
-        viewModel.login(emailOrUsername, password);
+        // Only proceed if all validations pass
+        if (isValid) {
+            viewModel.login(emailOrUsername, password);
+        }
     }
 
     private void showForgotPasswordDialog() {
@@ -150,6 +166,9 @@ public class LoginActivity extends BaseActivity {
 
             if (email.isEmpty()) {
                 tilEmail.setError(getString(R.string.email_required));
+                return;
+            } else if (!isValidEmail(email)) {
+                tilEmail.setError(getString(R.string.invalid_email_format));
                 return;
             }
 
@@ -204,9 +223,7 @@ public class LoginActivity extends BaseActivity {
             if (email.isEmpty()) {
                 tilEmail.setError(getString(R.string.email_required));
                 return;
-            }
-
-            if (!isValidEmail(email)) {
+            } else if (!isValidEmail(email)) {
                 tilEmail.setError(getString(R.string.invalid_email_format));
                 return;
             }

@@ -35,7 +35,7 @@ public class RegisterUseCase extends UseCase<Void, RegisterUseCase.Params> {
             throw new IllegalArgumentException(strings.get(R.string.username_required));
         }
         if (params.username.length() < 3) {
-            throw new IllegalArgumentException(strings.get(R.string.username_lenght));
+            throw new IllegalArgumentException(strings.get(R.string.username_length));
         }
 
         // Password validation

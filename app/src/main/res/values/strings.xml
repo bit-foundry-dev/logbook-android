@@ -36,7 +36,7 @@
     <string name="resend_verification_email_message">Your email address is not verified yet. Please check your inbox for the verification email.\n\nDidn\'t receive the email?</string>
     <string name="resend_verification_email">Resend verification email</string>
     <string name="username_required">Username is required</string>
-    <string name="username_lenght">Username must be at least 3 characters</string>
+    <string name="username_length">Username must be at least 3 characters</string>
     <string name="password_length">Password must be at least 8 characters</string>
     <string name="password_one_capital_letter">Password must contain at least one capital letter</string>
     <string name="password_one_number">Password must contain at least one number</string>
