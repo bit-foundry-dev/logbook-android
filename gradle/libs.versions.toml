@@ -1,5 +1,6 @@
 [versions]
 agp = "9.0.0"
+coreSplashscreen = "1.2.0"
 gson = "2.13.2"
 hiltAndroid = "2.57.2"
 junit = "4.13.2"
@@ -14,6 +15,7 @@ retrofit = "3.0.0"
 
 [libraries]
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
+core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hiltAndroid" }

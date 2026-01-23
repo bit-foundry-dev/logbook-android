@@ -62,4 +62,7 @@ dependencies {
 
     // Gson
     implementation libs.gson
+
+    //splash screen
+    implementation libs.core.splashscreen
 }
