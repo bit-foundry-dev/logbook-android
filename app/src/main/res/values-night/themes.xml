@@ -8,17 +8,20 @@
         <item name="materialAlertDialogTheme">@style/CustomDialogStyle</item>
     </style>
 
-    <style name="CustomDialogStyle" parent="Theme.Material3.Light.Dialog.Alert">
-        <item name="android:backgroundTint">@color/background_color</item>
+    <style name="CustomDialogStyle" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="android:background">@drawable/dialog_background</item>
+        <item name="backgroundTint">@color/background_color</item>
 
         <item name="android:textColorPrimary">@color/text_color</item>
 
         <item name="colorPrimary">@color/text_color</item>
         <item name="colorOnPrimary">@color/background_color</item>
 
-        <item name="android:buttonBarButtonStyle">@style/CustomDialogButton</item>
+        <item name="buttonBarPositiveButtonStyle">@style/CustomDialogButton</item>
+        <item name="buttonBarNegativeButtonStyle">@style/CustomDialogButton</item>
+        <item name="buttonBarNeutralButtonStyle">@style/CustomDialogButton</item>
 
-        <item name="shapeAppearanceMediumComponent">@style/DialogCorners</item>
+        <item name="shapeAppearanceOverlay">@style/DialogCorners</item>
     </style>
 
     <style name="CustomDialogButton" parent="Widget.Material3.Button.TextButton.Dialog">
@@ -27,7 +30,7 @@
         <item name="android:textAllCaps">false</item>
     </style>
 
-    <style name="DialogCorners" parent="ShapeAppearance.Material3.MediumComponent">
+    <style name="DialogCorners" parent="">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">16dp</item>
     </style>
