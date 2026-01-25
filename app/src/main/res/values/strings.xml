@@ -52,4 +52,8 @@
     <string name="reset_password_failed">Failed to send reset password email</string>
     <string name="resend_verification_failed">Failed to resend verification email</string>
     <string name="or">OR</string>
+    <string name="today">Today</string>
+    <string name="calendar">Calendar</string>
+    <string name="trash">Trash</string>
+    <string name="settings">Settings</string>
 </resources>

@@ -65,4 +65,8 @@ dependencies {
 
     //splash screen
     implementation libs.core.splashscreen
+
+    // Navigation Component
+    implementation libs.navigation.fragment
+    implementation libs.navigation.ui
 }

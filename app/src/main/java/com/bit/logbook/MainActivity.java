@@ -20,7 +20,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-       SplashScreen.installSplashScreen(this);
+        SplashScreen.installSplashScreen(this);
 
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
@@ -29,6 +29,9 @@ public class MainActivity extends AppCompatActivity {
 
         if (sharedPreferences.getString(Constants.KEY_USER_TOKEN, null) == null) {
             startActivity(new Intent(this, LoginActivity.class));
+            finishAffinity();
+        } else {
+            startActivity(new Intent(this, HomeActivity.class));
             finishAffinity();
         }
 

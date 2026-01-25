@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/todayFragment">
+
+    <fragment
+        android:id="@+id/todayFragment"
+        android:name="com.bit.logbook.feature.todayLogs.presentation.TodayFragment"
+        android:label="Today" />
+
+    <fragment
+        android:id="@+id/calendarFragment"
+        android:name="com.bit.logbook.feature.calendarLogs.presentation.CalendarFragment"
+        android:label="Calendar" />
+
+    <fragment
+        android:id="@+id/trashFragment"
+        android:name="com.bit.logbook.feature.trashLogs.presentation.TrashFragment"
+        android:label="Trash" />
+</navigation>

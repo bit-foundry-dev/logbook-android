@@ -13,6 +13,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.bit.logbook.HomeActivity;
 import com.bit.logbook.MainActivity;
 import com.bit.logbook.R;
 import com.bit.logbook.core.presentation.BaseActivity;
@@ -98,7 +99,7 @@ public class LoginActivity extends BaseActivity {
                 Toast.makeText(this, getString(R.string.login_welcome) + state.getUser().getUsername(),
                         Toast.LENGTH_SHORT).show();
                 // Navigate to main screen
-                startActivity(new Intent(this, MainActivity.class));
+                startActivity(new Intent(this, HomeActivity.class));
                 finish();
             } else if (state.isEmailNotVerified()) {
                 hideLoading();
