@@ -15,9 +15,17 @@ public interface AuthRepository {
 
     void saveUserId(String userId);
 
+    void saveUserEmail(String userId);
+
+    void saveUserUsername(String userId);
+
     String getUserToken();
 
     String getUserId();
+
+    String getUserEmail();
+
+    String getUserUsername();
 
     void clearUserData();
 }

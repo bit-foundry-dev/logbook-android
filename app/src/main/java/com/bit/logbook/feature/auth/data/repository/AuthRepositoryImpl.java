@@ -4,10 +4,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.bit.logbook.R;
+import com.bit.logbook.core.data.ApiResponse;
 import com.bit.logbook.core.data.BaseRepository;
 import com.bit.logbook.core.domain.StringProvider;
 import com.bit.logbook.core.utils.Constants;
-import com.bit.logbook.feature.auth.data.model.AuthResponse;
 import com.bit.logbook.feature.auth.data.model.ForgotPasswordRequest;
 import com.bit.logbook.feature.auth.data.model.LoginRequest;
 import com.bit.logbook.feature.auth.data.model.RegisterRequest;
@@ -38,10 +38,10 @@ public class AuthRepositoryImpl extends BaseRepository implements AuthRepository
     @Override
     public User login(String emailOrUsername, String password) throws Exception {
         LoginRequest request = new LoginRequest(emailOrUsername, password);
-        Response<AuthResponse> response = apiService.login(request).execute();
+        Response<ApiResponse<UserDto>> response = apiService.login(request).execute();
 
         if (response.isSuccessful() && response.body() != null) {
-            AuthResponse authResponse = response.body();
+            ApiResponse<UserDto> authResponse = response.body();
             if (authResponse.isSuccess() && authResponse.getData() != null) {
                 return mapToUser(authResponse.getData());
             } else {
@@ -82,10 +82,10 @@ public class AuthRepositoryImpl extends BaseRepository implements AuthRepository
     @Override
     public void forgotPassword(String email) throws Exception {
         ForgotPasswordRequest request = new ForgotPasswordRequest(email);
-        Response<AuthResponse> response = apiService.forgotPassword(request).execute();
+        Response<ApiResponse<UserDto>> response = apiService.forgotPassword(request).execute();
 
         if (response.isSuccessful() && response.body() != null) {
-            AuthResponse authResponse = response.body();
+            ApiResponse<UserDto> authResponse = response.body();
             if (!authResponse.isSuccess()) {
                 throw new Exception(authResponse.getMessage() != null ?
                         authResponse.getMessage() : strings.get(R.string.reset_password_failed));
@@ -101,10 +101,10 @@ public class AuthRepositoryImpl extends BaseRepository implements AuthRepository
 
     @Override
     public void resendVerificationEmail(String email) throws Exception {
-        Response<AuthResponse> response = apiService.resendVerification(email).execute();
+        Response<ApiResponse<UserDto>> response = apiService.resendVerification(email).execute();
 
         if (response.isSuccessful() && response.body() != null) {
-            AuthResponse authResponse = response.body();
+            ApiResponse<UserDto> authResponse = response.body();
             if (!authResponse.isSuccess()) {
                 throw new AuthException(
                         authResponse.getMessage() != null ? authResponse.getMessage() : strings.get(R.string.resend_verification_failed),
@@ -135,6 +135,20 @@ public class AuthRepositoryImpl extends BaseRepository implements AuthRepository
     }
 
     @Override
+    public void saveUserEmail(String email) {
+        sharedPreferences.edit()
+                .putString(Constants.KEY_USER_EMAIL, email)
+                .apply();
+    }
+
+    @Override
+    public void saveUserUsername(String username) {
+        sharedPreferences.edit()
+                .putString(Constants.KEY_USER_USERNAME, username)
+                .apply();
+    }
+
+    @Override
     public String getUserToken() {
         return sharedPreferences.getString(Constants.KEY_USER_TOKEN, null);
     }
@@ -142,6 +156,16 @@ public class AuthRepositoryImpl extends BaseRepository implements AuthRepository
     @Override
     public String getUserId() {
         return sharedPreferences.getString(Constants.KEY_USER_ID, null);
+    }
+
+    @Override
+    public String getUserEmail() {
+        return sharedPreferences.getString(Constants.KEY_USER_EMAIL, null);
+    }
+
+    @Override
+    public String getUserUsername() {
+        return sharedPreferences.getString(Constants.KEY_USER_USERNAME, null);
     }
 
     @Override

@@ -14,7 +14,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bit.logbook.HomeActivity;
-import com.bit.logbook.MainActivity;
 import com.bit.logbook.R;
 import com.bit.logbook.core.presentation.BaseActivity;
 import com.bit.logbook.feature.auth.presentation.register.RegisterActivity;

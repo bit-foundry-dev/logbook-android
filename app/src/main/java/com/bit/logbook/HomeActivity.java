@@ -1,67 +1,95 @@
 package com.bit.logbook;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.TextView;
 
-import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
 import androidx.core.view.GravityCompat;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.bit.logbook.core.presentation.BaseActivity;
+import com.bit.logbook.core.utils.Constants;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.navigation.NavigationView;
 
-public class HomeActivity extends AppCompatActivity {
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
+public class HomeActivity extends BaseActivity {
 
     private DrawerLayout drawerLayout;
+    private NavigationView navigationView;
     private NavController navController;
+    private MaterialToolbar toolbar;
     private AppBarConfiguration appBarConfiguration;
+    private MaterialButton btnSettings;
+    private TextView drawerUsername, drawerEmail;
+    private SharedPreferences sharedPreferences;
+
+    @Override
+    protected int getLayoutId() {
+        return R.layout.activity_home;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_home);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
                 if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
                     drawerLayout.closeDrawer(GravityCompat.START);
-                }else{
+                } else {
                     finish();
                 }
             }
         });
+    }
 
+    @Override
+    protected void initViews() {
+        drawerLayout = findViewById(R.id.drawerLayout);
+        navigationView = findViewById(R.id.navigationView);
+        toolbar = findViewById(R.id.toolbar);
+        btnSettings = findViewById(R.id.btnSettings);
+
+        View headerView = navigationView.getHeaderView(0);
+        drawerUsername = headerView.findViewById(R.id.drawer_header_username_tv);
+        drawerEmail = headerView.findViewById(R.id.drawer_header_email_tv);
+
+        sharedPreferences = getSharedPreferences(Constants.AUTH_PREFS_NAME, Context.MODE_PRIVATE);
 
         setupNavigation();
+    }
 
-        MaterialButton btnSettings = findViewById(R.id.btnSettings);
+    @Override
+    protected void initViewModels() {
+
+    }
+
+    @Override
+    protected void setupViews() {
         btnSettings.setOnClickListener(v -> drawerLayout.closeDrawer(GravityCompat.START));
+        drawerUsername.setText(sharedPreferences.getString(Constants.KEY_USER_USERNAME, getString(R.string.username)));
+        drawerEmail.setText(sharedPreferences.getString(Constants.KEY_USER_EMAIL, getString(R.string.email)));
+    }
+
+    @Override
+    protected void observeViewModel() {
+
     }
 
     private void setupNavigation() {
-        // Initialize views
-        drawerLayout = findViewById(R.id.drawerLayout);
-        NavigationView navigationView = findViewById(R.id.navigationView);
-        MaterialToolbar toolbar = findViewById(R.id.toolbar);
-
         setSupportActionBar(toolbar);
 
-        // Setup NavController
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.navHostFragment);
         assert navHostFragment != null;
@@ -73,13 +101,10 @@ public class HomeActivity extends AppCompatActivity {
                 .setOpenableLayout(drawerLayout)
                 .build();
 
-        // Connect toolbar with NavController
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
 
-        // Connect NavigationView with NavController
         NavigationUI.setupWithNavController(navigationView, navController);
 
-        // Optional: Close drawer when item selected
         navigationView.setNavigationItemSelectedListener(item -> {
             boolean handled = NavigationUI.onNavDestinationSelected(item, navController);
             if (handled) {

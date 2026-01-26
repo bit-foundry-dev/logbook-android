@@ -33,6 +33,8 @@ public class LoginUseCase extends UseCase<User, LoginUseCase.Params> {
         // Save user credentials
         repository.saveUserToken(user.getFullToken());
         repository.saveUserId(user.getUserId());
+        repository.saveUserEmail(user.getEmail());
+        repository.saveUserUsername(user.getUsername());
 
         return user;
     }
