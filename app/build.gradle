@@ -63,10 +63,13 @@ dependencies {
     // Gson
     implementation libs.gson
 
-    //splash screen
+    // Splash Screen
     implementation libs.core.splashscreen
 
     // Navigation Component
     implementation libs.navigation.fragment
     implementation libs.navigation.ui
+
+    // Timeline View
+    implementation libs.timelineview
 }
