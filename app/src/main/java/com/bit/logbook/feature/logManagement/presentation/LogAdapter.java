@@ -148,7 +148,7 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
                 descriptionText.setVisibility(View.GONE);
             } else {
                 descriptionText.setVisibility(View.VISIBLE);
-                descriptionText.setText(description);
+                descriptionText.setText(description.replace("\n", " "));
             }
 
             // Bind tag (optional - if you add chip to layout)

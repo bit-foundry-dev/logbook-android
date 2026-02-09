@@ -63,4 +63,15 @@
     <string name="retry">Retry</string>
     <string name="no_logs_found">No logs found</string>
     <string name="no_logs_today">No logs yet</string>
+    <string name="create_log_failed">Failed to add log</string>
+    <string name="title">Title</string>
+    <string name="description_optional">Description (optional)</string>
+    <string name="tag_optional">Tag (optional)</string>
+    <string name="add_log_title">Add New Log</string>
+    <string name="select_time">Select Log Time</string>
+    <string name="save">Save</string>
+    <string name="error_no_network">Unable to connect to the server</string>
+    <string name="create_log_successful">Log added</string>
+    <string name="title_required">Title is required</string>
+    <string name="time">Time</string>
 </resources>

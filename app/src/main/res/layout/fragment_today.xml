@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".feature.logManagement.presentation.TodayFragment">
+    tools:context=".feature.logManagement.presentation.today.TodayFragment">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view_logs"
@@ -62,10 +62,10 @@
     </LinearLayout>
 
     <LinearLayout
-        android:alpha="0.5"
         android:id="@+id/empty_state_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:alpha="0.5"
         android:gravity="center"
         android:orientation="vertical"
         android:visibility="gone"
@@ -89,5 +89,17 @@
             android:textSize="18sp" />
 
     </LinearLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_add_log"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:contentDescription="@string/add_log_title"
+        android:src="@android:drawable/ic_input_add"
+        app:backgroundTint="@color/text_color"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:tint="@color/background_color" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

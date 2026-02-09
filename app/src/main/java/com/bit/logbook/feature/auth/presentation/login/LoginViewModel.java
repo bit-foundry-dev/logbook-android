@@ -3,12 +3,16 @@ package com.bit.logbook.feature.auth.presentation.login;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.bit.logbook.R;
+import com.bit.logbook.core.domain.StringProvider;
 import com.bit.logbook.core.presentation.BaseViewModel;
 import com.bit.logbook.feature.auth.domain.entity.User;
 import com.bit.logbook.feature.auth.domain.exception.AuthException;
 import com.bit.logbook.feature.auth.domain.usercase.ForgotPasswordUseCase;
 import com.bit.logbook.feature.auth.domain.usercase.LoginUseCase;
 import com.bit.logbook.feature.auth.domain.usercase.ResendVerificationUseCase;
+
+import java.io.IOException;
 
 import javax.inject.Inject;
 
@@ -20,16 +24,19 @@ public class LoginViewModel extends BaseViewModel {
     private final LoginUseCase loginUseCase;
     private final ForgotPasswordUseCase forgotPasswordUseCase;
     private final ResendVerificationUseCase resendVerificationUseCase;
+    private final StringProvider stringProvider;
 
     private final MutableLiveData<LoginState> loginState = new MutableLiveData<>();
 
     @Inject
     public LoginViewModel(LoginUseCase loginUseCase,
                           ForgotPasswordUseCase forgotPasswordUseCase,
-                          ResendVerificationUseCase resendVerificationUseCase) {
+                          ResendVerificationUseCase resendVerificationUseCase,
+                          StringProvider stringProvider) {
         this.loginUseCase = loginUseCase;
         this.forgotPasswordUseCase = forgotPasswordUseCase;
         this.resendVerificationUseCase = resendVerificationUseCase;
+        this.stringProvider = stringProvider;
     }
 
     public LiveData<LoginState> getLoginState() {
@@ -54,8 +61,10 @@ public class LoginViewModel extends BaseViewModel {
                     } else {
                         loginState.postValue(LoginState.error(authException.getMessage()));
                     }
+                } else if (error instanceof IOException) {
+                    loginState.postValue(LoginState.error(stringProvider.get(R.string.error_no_network)));
                 } else {
-                    loginState.postValue(LoginState.error(error.getMessage()));
+                    loginState.postValue(LoginState.error(stringProvider.get(R.string.generic_error)));
                 }
             }
         });
@@ -73,7 +82,11 @@ public class LoginViewModel extends BaseViewModel {
 
             @Override
             public void onError(Throwable error) {
-                loginState.postValue(LoginState.error(error.getMessage()));
+                if (error instanceof IOException) {
+                    loginState.postValue(LoginState.error(stringProvider.get(R.string.error_no_network)));
+                } else {
+                    loginState.postValue(LoginState.error(stringProvider.get(R.string.generic_error)));
+                }
             }
         });
     }
@@ -90,7 +103,11 @@ public class LoginViewModel extends BaseViewModel {
 
             @Override
             public void onError(Throwable error) {
-                loginState.postValue(LoginState.error(error.getMessage()));
+                if (error instanceof IOException) {
+                    loginState.postValue(LoginState.error(stringProvider.get(R.string.error_no_network)));
+                } else {
+                    loginState.postValue(LoginState.error(stringProvider.get(R.string.generic_error)));
+                }
             }
         });
     }

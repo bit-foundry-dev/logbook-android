@@ -6,16 +6,16 @@
 
     <fragment
         android:id="@+id/todayFragment"
-        android:name="com.bit.logbook.feature.logManagement.presentation.TodayFragment"
+        android:name="com.bit.logbook.feature.logManagement.presentation.today.TodayFragment"
         android:label="Today" />
 
     <fragment
         android:id="@+id/calendarFragment"
-        android:name="com.bit.logbook.feature.logManagement.presentation.CalendarFragment"
+        android:name="com.bit.logbook.feature.logManagement.presentation.calendar.CalendarFragment"
         android:label="Calendar" />
 
     <fragment
         android:id="@+id/trashFragment"
-        android:name="com.bit.logbook.feature.logManagement.presentation.TrashFragment"
+        android:name="com.bit.logbook.feature.logManagement.presentation.trash.TrashFragment"
         android:label="Trash" />
 </navigation>
