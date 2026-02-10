@@ -3,17 +3,17 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/todayFragment"
-            android:icon="@drawable/ic_today"
+            android:icon="@drawable/ic_menu_today"
             android:title="@string/today" />
 
         <item
             android:id="@+id/calendarFragment"
-            android:icon="@drawable/ic_calendar"
+            android:icon="@drawable/ic_menu_calendar"
             android:title="@string/calendar" />
 
         <item
             android:id="@+id/trashFragment"
-            android:icon="@drawable/ic_trash"
+            android:icon="@drawable/ic_menu_trash"
             android:title="@string/trash" />
     </group>
 </menu>

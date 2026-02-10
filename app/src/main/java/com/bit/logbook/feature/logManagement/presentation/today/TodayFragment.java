@@ -20,19 +20,24 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bit.logbook.R;
+import com.bit.logbook.core.utils.DateUtils;
 import com.bit.logbook.feature.logManagement.data.model.CreateLogRequest;
 import com.bit.logbook.feature.logManagement.domain.entity.Log;
 import com.bit.logbook.feature.logManagement.presentation.LogAdapter;
 import com.bit.logbook.feature.logManagement.presentation.LogState;
 import com.bit.logbook.feature.logManagement.presentation.LogsViewModel;
+import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -62,7 +67,8 @@ public class TodayFragment extends Fragment {
         selectedTime = startDate == null ? LocalDateTime.now() : startDate.atTime(LocalTime.now());
     }
 
-    public TodayFragment(){
+    public TodayFragment() {
+        startDate = LocalDate.now();
         selectedTime = startDate == null ? LocalDateTime.now() : startDate.atTime(LocalTime.now());
     }
 
@@ -82,7 +88,7 @@ public class TodayFragment extends Fragment {
         setupRecyclerView();
 
         retryButton.setOnClickListener(v -> viewModel.getLogs(startDate));
-        addLogBtn.setOnClickListener(v -> showAddLogDialog());
+        addLogBtn.setOnClickListener(v -> showAddLogDialog(false));
 
         return rootView;
     }
@@ -192,7 +198,8 @@ public class TodayFragment extends Fragment {
         }
     }
 
-    private void showAddLogDialog() {
+    private void showAddLogDialog(boolean editable) {
+        selectedTime = startDate == null ? LocalDateTime.now() : startDate.atTime(LocalTime.now());
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());
         builder.setTitle(R.string.add_log_title);
 
@@ -203,11 +210,13 @@ public class TodayFragment extends Fragment {
         final EditText descriptionEditText = view.findViewById(R.id.edit_text_description);
         final EditText tagEditText = view.findViewById(R.id.edit_text_tag);
         final EditText timeEditText = view.findViewById(R.id.edit_text_time);
+        final EditText dateEditText = view.findViewById(R.id.edit_text_date);
         dialogProgressBar = view.findViewById(R.id.dialog_progress_bar);
         dialogContent = view.findViewById(R.id.dialog_content);
 
         // Pre-fill with current time
         timeEditText.setText(selectedTime.format(DateTimeFormatter.ofPattern("HH:mm")));
+        dateEditText.setText(DateUtils.formatFullDate(selectedTime.toLocalDate()));
 
         timeEditText.setOnClickListener(v -> {
             MaterialTimePicker timePicker = new MaterialTimePicker.Builder()
@@ -224,6 +233,25 @@ public class TodayFragment extends Fragment {
             });
 
             timePicker.show(getChildFragmentManager(), "TIME_PICKER");
+        });
+
+        dateEditText.setOnClickListener(v -> {
+            if (editable) {
+                MaterialDatePicker<Long> datePicker = MaterialDatePicker.Builder.datePicker()
+                        .setTitleText(R.string.select_date)
+                        .setSelection(selectedTime.toLocalDate().atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli())
+                        .build();
+
+                datePicker.addOnPositiveButtonClickListener(selection -> {
+                    LocalDate newDate = Instant.ofEpochMilli(selection).atZone(ZoneOffset.UTC).toLocalDate();
+                    selectedTime = selectedTime.withYear(newDate.getYear())
+                            .withMonth(newDate.getMonthValue())
+                            .withDayOfMonth(newDate.getDayOfMonth());
+                    dateEditText.setText(DateUtils.formatFullDate(newDate));
+                });
+
+                datePicker.show(getChildFragmentManager(), "DATE_PICKER");
+            }
         });
 
         builder.setPositiveButton(R.string.save, (dialog, which) -> {
