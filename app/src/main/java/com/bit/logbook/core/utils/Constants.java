@@ -6,4 +6,6 @@ public class Constants {
     public static String KEY_USER_EMAIL = "user_email";
     public static String KEY_USER_USERNAME = "user_username";
     public static String KEY_USER_ID = "user_id";
+
+    public static final int YEARS_BACK_LIMIT = 10;
 }

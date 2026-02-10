@@ -30,7 +30,9 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -53,6 +55,17 @@ public class TodayFragment extends Fragment {
     private ProgressBar dialogProgressBar;
     private View dialogContent;
 
+    private LocalDate startDate;
+
+    public TodayFragment(LocalDate startDate) {
+        this.startDate = startDate;
+        selectedTime = startDate == null ? LocalDateTime.now() : startDate.atTime(LocalTime.now());
+    }
+
+    public TodayFragment(){
+        selectedTime = startDate == null ? LocalDateTime.now() : startDate.atTime(LocalTime.now());
+    }
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_today, container, false);
@@ -68,7 +81,7 @@ public class TodayFragment extends Fragment {
 
         setupRecyclerView();
 
-        retryButton.setOnClickListener(v -> viewModel.getLogs(null));
+        retryButton.setOnClickListener(v -> viewModel.getLogs(startDate));
         addLogBtn.setOnClickListener(v -> showAddLogDialog());
 
         return rootView;
@@ -80,7 +93,7 @@ public class TodayFragment extends Fragment {
         observeViewModel();
 
         // Load logs for today
-        viewModel.getLogs(null);
+        viewModel.getLogs(startDate);
     }
 
     private void setupRecyclerView() {
@@ -119,8 +132,8 @@ public class TodayFragment extends Fragment {
             if (dialogProgressBar != null) {
                 dialogProgressBar.setVisibility(View.VISIBLE);
             }
-            if(dialogContent != null){
-                    dialogContent.setVisibility(View.INVISIBLE);
+            if (dialogContent != null) {
+                dialogContent.setVisibility(View.INVISIBLE);
             }
             if (addLogDialog != null) {
                 addLogDialog.setCancelable(false);
@@ -131,7 +144,7 @@ public class TodayFragment extends Fragment {
             if (dialogProgressBar != null) {
                 dialogProgressBar.setVisibility(View.GONE);
             }
-            if(dialogContent != null){
+            if (dialogContent != null) {
                 dialogContent.setVisibility(View.VISIBLE);
             }
             if (addLogDialog != null) {
@@ -145,7 +158,7 @@ public class TodayFragment extends Fragment {
             if (addLogDialog != null && addLogDialog.isShowing()) {
                 addLogDialog.dismiss();
             }
-            viewModel.getLogs(null);
+            viewModel.getLogs(startDate);
             Toast.makeText(requireContext(), R.string.create_log_successful, Toast.LENGTH_SHORT).show();
             viewModel.resetLogCreationState();
         }
@@ -194,7 +207,6 @@ public class TodayFragment extends Fragment {
         dialogContent = view.findViewById(R.id.dialog_content);
 
         // Pre-fill with current time
-        selectedTime = LocalDateTime.now();
         timeEditText.setText(selectedTime.format(DateTimeFormatter.ofPattern("HH:mm")));
 
         timeEditText.setOnClickListener(v -> {
@@ -206,7 +218,7 @@ public class TodayFragment extends Fragment {
                     .build();
 
             timePicker.addOnPositiveButtonClickListener(dialog -> {
-                selectedTime = LocalDateTime.now().withHour(timePicker.getHour()).withMinute(timePicker.getMinute());
+                selectedTime = selectedTime.withHour(timePicker.getHour()).withMinute(timePicker.getMinute());
 
                 timeEditText.setText(selectedTime.format(DateTimeFormatter.ofPattern("HH:mm")));
             });
@@ -238,7 +250,7 @@ public class TodayFragment extends Fragment {
                 }
             });
         });
-        
+
         addLogDialog.setOnDismissListener(dialog -> {
             viewModel.resetLogCreationState();
             addLogDialog = null;

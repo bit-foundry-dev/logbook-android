@@ -31,7 +31,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/text_timeline_time"
         app:layout_constraintTop_toTopOf="parent"
-        app:marker="@drawable/timeline_marker"
+        app:marker="@drawable/ic_timeline_marker"
         app:lineWidth="2dp"
         app:markerSize="20dp"
         app:startLineColor="@color/text_color" />

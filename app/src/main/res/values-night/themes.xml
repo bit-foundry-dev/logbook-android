@@ -9,7 +9,7 @@
     </style>
 
     <style name="CustomDialogStyle" parent="ThemeOverlay.Material3.MaterialAlertDialog">
-        <item name="android:background">@drawable/dialog_background</item>
+        <item name="android:background">@drawable/bg_dialog</item>
         <item name="backgroundTint">@color/background_color</item>
 
         <item name="android:textColorPrimary">@color/text_color</item>
