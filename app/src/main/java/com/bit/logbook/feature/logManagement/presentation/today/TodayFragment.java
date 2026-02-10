@@ -22,14 +22,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bit.logbook.R;
 import com.bit.logbook.core.utils.DateUtils;
 import com.bit.logbook.feature.logManagement.data.model.CreateLogRequest;
+import com.bit.logbook.feature.logManagement.data.model.UpdateLogRequest;
 import com.bit.logbook.feature.logManagement.domain.entity.Log;
 import com.bit.logbook.feature.logManagement.presentation.LogAdapter;
 import com.bit.logbook.feature.logManagement.presentation.LogState;
 import com.bit.logbook.feature.logManagement.presentation.LogsViewModel;
+import com.google.android.material.datepicker.CalendarConstraints;
+import com.google.android.material.datepicker.DateValidatorPointBackward;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
 
@@ -59,6 +61,7 @@ public class TodayFragment extends Fragment {
     private AlertDialog addLogDialog;
     private ProgressBar dialogProgressBar;
     private View dialogContent;
+    private boolean isEdit = false;
 
     private LocalDate startDate;
 
@@ -88,7 +91,7 @@ public class TodayFragment extends Fragment {
         setupRecyclerView();
 
         retryButton.setOnClickListener(v -> viewModel.getLogs(startDate));
-        addLogBtn.setOnClickListener(v -> showAddLogDialog(false));
+        addLogBtn.setOnClickListener(v -> showAddLogDialog(false, null));
 
         return rootView;
     }
@@ -112,6 +115,8 @@ public class TodayFragment extends Fragment {
                     "Clicked: " + log.getTitle(),
                     Toast.LENGTH_SHORT).show();
         });
+
+        adapter.setOnLogLongClickListener((log, position) -> showAddLogDialog(true, log));
     }
 
     private void observeViewModel() {
@@ -158,14 +163,18 @@ public class TodayFragment extends Fragment {
                 addLogDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
                 addLogDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setEnabled(true);
             }
-            Toast.makeText(requireContext(), getString(R.string.create_log_failed) + " :" + state.getError(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), state.getError(), Toast.LENGTH_SHORT).show();
             viewModel.resetLogCreationState();
         } else if (state.getLog() != null) {
             if (addLogDialog != null && addLogDialog.isShowing()) {
                 addLogDialog.dismiss();
             }
             viewModel.getLogs(startDate);
-            Toast.makeText(requireContext(), R.string.create_log_successful, Toast.LENGTH_SHORT).show();
+            if (isEdit) {
+                Toast.makeText(requireContext(), R.string.update_log_successful, Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(requireContext(), R.string.create_log_successful, Toast.LENGTH_SHORT).show();
+            }
             viewModel.resetLogCreationState();
         }
     }
@@ -198,10 +207,11 @@ public class TodayFragment extends Fragment {
         }
     }
 
-    private void showAddLogDialog(boolean editable) {
+    private void showAddLogDialog(boolean editable, Log log) {
+        isEdit = editable;
         selectedTime = startDate == null ? LocalDateTime.now() : startDate.atTime(LocalTime.now());
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());
-        builder.setTitle(R.string.add_log_title);
+        builder.setTitle(editable ? R.string.update_log_title : R.string.add_log_title);
 
         View view = getLayoutInflater().inflate(R.layout.dialog_add_log, null);
         builder.setView(view);
@@ -214,9 +224,17 @@ public class TodayFragment extends Fragment {
         dialogProgressBar = view.findViewById(R.id.dialog_progress_bar);
         dialogContent = view.findViewById(R.id.dialog_content);
 
-        // Pre-fill with current time
-        timeEditText.setText(selectedTime.format(DateTimeFormatter.ofPattern("HH:mm")));
-        dateEditText.setText(DateUtils.formatFullDate(selectedTime.toLocalDate()));
+        if (editable && log != null) {
+            titleEditText.setText(log.getTitle());
+            descriptionEditText.setText(log.getDescription());
+            tagEditText.setText(log.getTag());
+            timeEditText.setText(log.getStartDate().format(DateTimeFormatter.ofPattern("HH:mm")));
+            dateEditText.setText(DateUtils.formatFullDate(log.getStartDate().toLocalDate()));
+            selectedTime = log.getStartDate();
+        } else {
+            timeEditText.setText(selectedTime.format(DateTimeFormatter.ofPattern("HH:mm")));
+            dateEditText.setText(DateUtils.formatFullDate(selectedTime.toLocalDate()));
+        }
 
         timeEditText.setOnClickListener(v -> {
             MaterialTimePicker timePicker = new MaterialTimePicker.Builder()
@@ -237,9 +255,18 @@ public class TodayFragment extends Fragment {
 
         dateEditText.setOnClickListener(v -> {
             if (editable) {
+                // Create a validator that only allows past and present dates
+                CalendarConstraints.DateValidator dateValidator = DateValidatorPointBackward.now();
+
+                CalendarConstraints constraints = new CalendarConstraints.Builder()
+                        .setValidator(dateValidator)
+                        .setEnd(MaterialDatePicker.todayInUtcMilliseconds())
+                        .build();
+
                 MaterialDatePicker<Long> datePicker = MaterialDatePicker.Builder.datePicker()
                         .setTitleText(R.string.select_date)
                         .setSelection(selectedTime.toLocalDate().atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli())
+                        .setCalendarConstraints(constraints)
                         .build();
 
                 datePicker.addOnPositiveButtonClickListener(selection -> {
@@ -265,14 +292,31 @@ public class TodayFragment extends Fragment {
 
         addLogDialog.setOnShowListener(dialogInterface -> {
             Button button = addLogDialog.getButton(AlertDialog.BUTTON_POSITIVE);
-            button.setOnClickListener(view1 -> {
+            button.setOnClickListener(v -> {
                 String title = titleEditText.getText().toString();
                 String description = descriptionEditText.getText().toString();
                 String tag = tagEditText.getText().toString();
 
                 if (!title.isEmpty()) {
-                    CreateLogRequest request = new CreateLogRequest(title, description, tag, selectedTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
-                    viewModel.createLog(request);
+                    if (editable && log != null) {
+                        UpdateLogRequest request = new UpdateLogRequest();
+                        if (!title.equalsIgnoreCase(log.getTitle())) {
+                            request.setTitle(title);
+                        }
+                        if (!description.equalsIgnoreCase(log.getDescription())) {
+                            request.setDescription(description);
+                        }
+                        if (!tag.equalsIgnoreCase(log.getTag())) {
+                            request.setTag(tag);
+                        }
+                        if (selectedTime != log.getStartDate()){
+                            request.setStartDate(selectedTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+                        }
+                        viewModel.updateLog(request, log.getId());
+                    } else {
+                        CreateLogRequest request = new CreateLogRequest(title, description, tag, selectedTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+                        viewModel.createLog(request);
+                    }
                 } else {
                     titleEditText.setError(getString(R.string.title_required));
                 }

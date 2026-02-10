@@ -1,6 +1,7 @@
 [versions]
 agp = "9.0.0"
 coreSplashscreen = "1.2.0"
+fabulousfilter = "0.0.6"
 gson = "2.13.2"
 hiltAndroid = "2.59"
 junit = "4.13.2"
@@ -20,6 +21,7 @@ view = "2.4.1"
 [libraries]
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
 core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
+fabulousfilter = { module = "io.github.krupen:fabulousfilter", version.ref = "fabulousfilter" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hiltAndroid" }

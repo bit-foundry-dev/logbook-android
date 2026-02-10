@@ -68,6 +68,7 @@
     <string name="description_optional">Description (optional)</string>
     <string name="tag_optional">Tag (optional)</string>
     <string name="add_log_title">Add New Log</string>
+    <string name="update_log_title">Update Log</string>
     <string name="select_time">Select Log Time</string>
     <string name="save">Save</string>
     <string name="error_no_network">Unable to connect to the server</string>
@@ -77,4 +78,6 @@
     <string name="select_year">Select Year</string>
     <string name="date">Date</string>
     <string name="select_date">Select date</string>
+    <string name="update_log_failed">Failed to update log</string>
+    <string name="update_log_successful">Log updated</string>
 </resources>

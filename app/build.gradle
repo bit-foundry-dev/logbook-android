@@ -72,4 +72,7 @@ dependencies {
 
     // Timeline View
     implementation libs.timelineview
+
+    // Filter view
+    implementation libs.fabulousfilter
 }

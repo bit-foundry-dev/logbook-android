@@ -9,6 +9,7 @@ import com.bit.logbook.core.domain.GenericException;
 import com.bit.logbook.core.domain.StringProvider;
 import com.bit.logbook.feature.logManagement.data.model.CreateLogRequest;
 import com.bit.logbook.feature.logManagement.data.model.LogDto;
+import com.bit.logbook.feature.logManagement.data.model.UpdateLogRequest;
 import com.bit.logbook.feature.logManagement.data.source.remote.LogApiService;
 import com.bit.logbook.feature.logManagement.domain.entity.Log;
 import com.bit.logbook.feature.logManagement.domain.repository.LogRepository;
@@ -63,6 +64,25 @@ public class LogRepositoryImpl extends BaseRepository implements LogRepository {
             } else {
                 throw new GenericException(
                         logResponse.getMessage() != null ? logResponse.getMessage() : strings.get(R.string.create_log_failed),
+                        response.code()
+                );
+            }
+        } else {
+            throw new GenericException(strings.get(R.string.generic_error), response.code());
+        }
+    }
+
+    @Override
+    public Log updateLog(UpdateLogRequest request, String id) throws Exception {
+        Response<ApiResponse<LogDto>> response = apiService.updateLog(request, id).execute();
+
+        if (response.isSuccessful() && response.body() != null) {
+            ApiResponse<LogDto> logResponse = response.body();
+            if (logResponse.isSuccess() && logResponse.getData() != null) {
+                return mapToLog(logResponse.getData());
+            } else {
+                throw new GenericException(
+                        logResponse.getMessage() != null ? logResponse.getMessage() : strings.get(R.string.update_log_failed),
                         response.code()
                 );
             }
