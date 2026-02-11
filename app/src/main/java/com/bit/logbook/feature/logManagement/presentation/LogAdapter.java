@@ -31,7 +31,7 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
     }
 
     public interface OnLogLongClickListener {
-        void onLogLongClick(Log log, int position);
+        void onLogLongClick(View view, Log log, int position);
     }
 
     // Setters for click listeners
@@ -121,7 +121,7 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
             descriptionText = itemView.findViewById(R.id.text_timeline_description);
             timelineView = itemView.findViewById(R.id.timeline);
 
-             tagChip = itemView.findViewById(R.id.chip_tag);
+            tagChip = itemView.findViewById(R.id.chip_tag);
 
             timelineView.initLine(viewType);
         }
@@ -172,7 +172,7 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
             // Set long click listener
             itemView.setOnLongClickListener(v -> {
                 if (longClickListener != null) {
-                    longClickListener.onLogLongClick(log, position);
+                    longClickListener.onLogLongClick(v, log, position);
                     return true;
                 }
                 return false;

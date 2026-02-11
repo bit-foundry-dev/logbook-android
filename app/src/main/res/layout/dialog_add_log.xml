@@ -27,6 +27,7 @@
             android:hint="@string/title"
             app:counterEnabled="true"
             app:counterMaxLength="200"
+            app:endIconMode="clear_text"
             app:errorIconTint="@color/red_error">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -47,7 +48,8 @@
             android:layout_marginTop="16dp"
             android:hint="@string/description_optional"
             app:counterEnabled="true"
-            app:counterMaxLength="2000">
+            app:counterMaxLength="2000"
+            app:endIconMode="clear_text">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edit_text_description"
@@ -95,7 +97,8 @@
                 android:layout_weight="1"
                 android:hint="@string/tag_optional"
                 app:counterEnabled="true"
-                app:counterMaxLength="25">
+                app:counterMaxLength="25"
+                app:endIconMode="clear_text">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edit_text_tag"

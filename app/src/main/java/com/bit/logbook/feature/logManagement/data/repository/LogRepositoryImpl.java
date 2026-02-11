@@ -35,16 +35,16 @@ public class LogRepositoryImpl extends BaseRepository implements LogRepository {
     }
 
     @Override
-    public List<Log> getAllLogs(LocalDate startDate) throws Exception {
-        Response<ApiResponse<List<LogDto>>> response = apiService.getLogs(startDate).execute();
+    public List<Log> getAllLogs(LocalDate startDate, boolean isTrash) throws Exception {
+        Response<ApiResponse<List<LogDto>>> response = apiService.getLogs(startDate, isTrash).execute();
 
         if (response.isSuccessful() && response.body() != null) {
-            ApiResponse<List<LogDto>> logResponse = response.body();
-            if (logResponse.isSuccess() && logResponse.getData() != null) {
-                return mapToLogs(logResponse.getData());
+            ApiResponse<List<LogDto>> logsResponse = response.body();
+            if (logsResponse.isSuccess() && logsResponse.getData() != null) {
+                return mapToLogs(logsResponse.getData());
             } else {
                 throw new GenericException(
-                        logResponse.getMessage() != null ? logResponse.getMessage() : strings.get(R.string.fetch_logs_failed),
+                        logsResponse.getMessage() != null ? logsResponse.getMessage() : strings.get(R.string.fetch_logs_failed),
                         response.code()
                 );
             }
@@ -58,12 +58,12 @@ public class LogRepositoryImpl extends BaseRepository implements LogRepository {
         Response<ApiResponse<LogDto>> response = apiService.createLog(request).execute();
 
         if (response.isSuccessful() && response.body() != null) {
-            ApiResponse<LogDto> logResponse = response.body();
-            if (logResponse.isSuccess() && logResponse.getData() != null) {
-                return mapToLog(logResponse.getData());
+            ApiResponse<LogDto> creationRequest = response.body();
+            if (creationRequest.isSuccess() && creationRequest.getData() != null) {
+                return mapToLog(creationRequest.getData());
             } else {
                 throw new GenericException(
-                        logResponse.getMessage() != null ? logResponse.getMessage() : strings.get(R.string.create_log_failed),
+                        creationRequest.getMessage() != null ? creationRequest.getMessage() : strings.get(R.string.create_log_failed),
                         response.code()
                 );
             }
@@ -77,16 +77,25 @@ public class LogRepositoryImpl extends BaseRepository implements LogRepository {
         Response<ApiResponse<LogDto>> response = apiService.updateLog(request, id).execute();
 
         if (response.isSuccessful() && response.body() != null) {
-            ApiResponse<LogDto> logResponse = response.body();
-            if (logResponse.isSuccess() && logResponse.getData() != null) {
-                return mapToLog(logResponse.getData());
+            ApiResponse<LogDto> updateResponse = response.body();
+            if (updateResponse.isSuccess() && updateResponse.getData() != null) {
+                return mapToLog(updateResponse.getData());
             } else {
                 throw new GenericException(
-                        logResponse.getMessage() != null ? logResponse.getMessage() : strings.get(R.string.update_log_failed),
+                        updateResponse.getMessage() != null ? updateResponse.getMessage() : strings.get(R.string.update_log_failed),
                         response.code()
                 );
             }
         } else {
+            throw new GenericException(strings.get(R.string.generic_error), response.code());
+        }
+    }
+
+    @Override
+    public void deleteLog(String id) throws Exception {
+        Response<ApiResponse<Void>> response = apiService.deleteLog(id).execute();
+
+        if (!response.isSuccessful()) {
             throw new GenericException(strings.get(R.string.generic_error), response.code());
         }
     }

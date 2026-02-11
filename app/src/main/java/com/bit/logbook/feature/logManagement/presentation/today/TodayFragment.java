@@ -1,14 +1,13 @@
 package com.bit.logbook.feature.logManagement.presentation.today;
 
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,6 +26,7 @@ import com.bit.logbook.feature.logManagement.data.model.CreateLogRequest;
 import com.bit.logbook.feature.logManagement.data.model.UpdateLogRequest;
 import com.bit.logbook.feature.logManagement.domain.entity.Log;
 import com.bit.logbook.feature.logManagement.presentation.LogAdapter;
+import com.bit.logbook.feature.logManagement.presentation.LogDeletionState;
 import com.bit.logbook.feature.logManagement.presentation.LogState;
 import com.bit.logbook.feature.logManagement.presentation.LogsViewModel;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -94,7 +94,7 @@ public class TodayFragment extends Fragment {
 
         setupRecyclerView();
 
-        retryButton.setOnClickListener(v -> viewModel.getLogs(startDate));
+        retryButton.setOnClickListener(v -> viewModel.getLogs(startDate, false));
         addLogBtn.setOnClickListener(v -> showAddLogDialog(false, null));
 
         return rootView;
@@ -106,7 +106,7 @@ public class TodayFragment extends Fragment {
         observeViewModel();
 
         // Load logs for today
-        viewModel.getLogs(startDate);
+        viewModel.getLogs(startDate, false);
     }
 
     private void setupRecyclerView() {
@@ -116,12 +116,13 @@ public class TodayFragment extends Fragment {
 
         adapter.setOnLogClickListener((log, position) -> showLogDetailsBottomSheet(log));
 
-        adapter.setOnLogLongClickListener((log, position) -> showAddLogDialog(true, log));
+        adapter.setOnLogLongClickListener(this::showPopupMenu);
     }
 
     private void observeViewModel() {
         viewModel.getLogState().observe(getViewLifecycleOwner(), this::handleLogListState);
         viewModel.getLogCreationState().observe(getViewLifecycleOwner(), this::handleLogCreationState);
+        viewModel.getLogDeletionState().observe(getViewLifecycleOwner(), this::handleLogDeletionState);
     }
 
     private void handleLogListState(LogState state) {
@@ -206,13 +207,28 @@ public class TodayFragment extends Fragment {
             if (addLogDialog != null && addLogDialog.isShowing()) {
                 addLogDialog.dismiss();
             }
-            viewModel.getLogs(startDate);
+            viewModel.getLogs(startDate, false);
             if (isEdit) {
                 Toast.makeText(requireContext(), R.string.update_log_successful, Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(requireContext(), R.string.create_log_successful, Toast.LENGTH_SHORT).show();
             }
             viewModel.resetLogCreationState();
+        }
+    }
+
+    private void handleLogDeletionState(LogDeletionState state) {
+        if (state == null) return;
+
+        if (state.isLoading()) {
+            renderLoading();
+        } else if (state.getError() != null) {
+            Toast.makeText(requireContext(), state.getError(), Toast.LENGTH_SHORT).show();
+            viewModel.resetLogDeletionState();
+        } else if (state.isDeleted()) {
+            viewModel.getLogs(startDate, false);
+            Toast.makeText(requireContext(), "Log moved to trash", Toast.LENGTH_SHORT).show();
+            viewModel.resetLogDeletionState();
         }
     }
 
@@ -270,6 +286,7 @@ public class TodayFragment extends Fragment {
             dateEditText.setText(DateUtils.formatFullDate(log.getStartDate().toLocalDate()));
             selectedTime = log.getStartDate();
         } else {
+            titleEditText.requestFocus();
             timeEditText.setText(selectedTime.format(DateTimeFormatter.ofPattern("HH:mm")));
             dateEditText.setText(DateUtils.formatFullDate(selectedTime.toLocalDate()));
         }
@@ -378,6 +395,36 @@ public class TodayFragment extends Fragment {
         });
 
         addLogDialog.show();
+    }
+
+    private void showPopupMenu(View view, Log log, int position) {
+        PopupMenu popupMenu = new PopupMenu(requireContext(), view);
+        popupMenu.getMenuInflater().inflate(R.menu.log_popup_menu, popupMenu.getMenu());
+
+        popupMenu.setOnMenuItemClickListener(item -> {
+            int itemId = item.getItemId();
+            if (itemId == R.id.menu_edit) {
+                showAddLogDialog(true, log);
+                return true;
+            } else if (itemId == R.id.menu_delete) {
+                showMoveToTrashConfirmationDialog(log);
+                return true;
+            }
+            return false;
+        });
+
+        popupMenu.show();
+    }
+
+    private void showMoveToTrashConfirmationDialog(Log log) {
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.move_to_trash_log_title)
+                .setMessage(R.string.move_to_rash_log_confirmation)
+                .setPositiveButton(R.string.delete, (dialog, which) -> {
+                    viewModel.deleteLog(log.getId());
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
     }
 
 

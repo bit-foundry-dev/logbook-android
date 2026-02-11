@@ -81,4 +81,9 @@
     <string name="update_log_failed">Failed to update log</string>
     <string name="update_log_successful">Log updated</string>
     <string name="close">Close</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
+    <string name="move_to_trash_log_title">Move to trash</string>
+    <string name="move_to_rash_log_confirmation">Would you like to move this log to trash?</string>
+    <string name="delete_log_failed">Failed to delete log</string>
 </resources>

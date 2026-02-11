@@ -10,6 +10,7 @@ import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.PATCH;
 import retrofit2.http.POST;
@@ -19,11 +20,14 @@ import retrofit2.http.Query;
 public interface LogApiService {
 
     @GET("events")
-    Call<ApiResponse<List<LogDto>>> getLogs(@Query("startDate") LocalDate startDate);
+    Call<ApiResponse<List<LogDto>>> getLogs(@Query("startDate") LocalDate startDate, @Query("isTrash") boolean isTrash);
 
     @POST("events")
     Call<ApiResponse<LogDto>> createLog(@Body CreateLogRequest request);
 
     @PATCH("events/{id}")
     Call<ApiResponse<LogDto>> updateLog(@Body UpdateLogRequest request, @Path("id") String id);
+
+    @DELETE("events/{id}")
+    Call<ApiResponse<Void>> deleteLog(@Path("id") String id);
 }

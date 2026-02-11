@@ -8,7 +8,11 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface LogRepository {
-    List<Log> getAllLogs(LocalDate startDate) throws Exception;
+    List<Log> getAllLogs(LocalDate startDate, boolean isTrash) throws Exception;
+
     Log createLog(CreateLogRequest request) throws Exception;
+
     Log updateLog(UpdateLogRequest request, String id) throws Exception;
+
+    void deleteLog(String id) throws Exception;
 }
