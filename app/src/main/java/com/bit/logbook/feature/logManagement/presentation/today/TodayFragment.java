@@ -1,6 +1,8 @@
 package com.bit.logbook.feature.logManagement.presentation.today;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +29,8 @@ import com.bit.logbook.feature.logManagement.domain.entity.Log;
 import com.bit.logbook.feature.logManagement.presentation.LogAdapter;
 import com.bit.logbook.feature.logManagement.presentation.LogState;
 import com.bit.logbook.feature.logManagement.presentation.LogsViewModel;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.chip.Chip;
 import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.DateValidatorPointBackward;
 import com.google.android.material.datepicker.MaterialDatePicker;
@@ -110,11 +114,7 @@ public class TodayFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerView.setAdapter(adapter);
 
-        adapter.setOnLogClickListener((log, position) -> {
-            Toast.makeText(requireContext(),
-                    "Clicked: " + log.getTitle(),
-                    Toast.LENGTH_SHORT).show();
-        });
+        adapter.setOnLogClickListener((log, position) -> showLogDetailsBottomSheet(log));
 
         adapter.setOnLogLongClickListener((log, position) -> showAddLogDialog(true, log));
     }
@@ -134,6 +134,43 @@ public class TodayFragment extends Fragment {
         } else if (state.getLogs() != null) {
             renderSuccess(state.getLogs());
         }
+    }
+
+    private void showLogDetailsBottomSheet(Log log) {
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
+
+        View bottomSheetView = LayoutInflater.from(requireContext())
+                .inflate(R.layout.bottom_sheet_log_details, null);
+
+        TextView titleView = bottomSheetView.findViewById(R.id.detail_title);
+        TextView dateView = bottomSheetView.findViewById(R.id.detail_date);
+        TextView timeView = bottomSheetView.findViewById(R.id.detail_time);
+        Chip tagChip = bottomSheetView.findViewById(R.id.detail_tag);  // Changed to Chip
+        TextView descriptionView = bottomSheetView.findViewById(R.id.detail_description);
+        View divider = bottomSheetView.findViewById(R.id.divider);  // Added divider
+
+        titleView.setText(log.getTitle());
+        dateView.setText(DateUtils.formatFullDate(log.getStartDate().toLocalDate()));
+        timeView.setText(log.getStartDate().format(DateTimeFormatter.ofPattern("HH:mm")));
+
+        if (log.getTag() != null && !log.getTag().isEmpty()) {
+            tagChip.setText(log.getTag());
+            tagChip.setVisibility(View.VISIBLE);
+        } else {
+            tagChip.setVisibility(View.GONE);
+        }
+
+        if (log.getDescription() != null && !log.getDescription().isEmpty()) {
+            descriptionView.setText(log.getDescription());
+            descriptionView.setVisibility(View.VISIBLE);
+            divider.setVisibility(View.VISIBLE);
+        } else {
+            descriptionView.setVisibility(View.GONE);
+            divider.setVisibility(View.GONE);
+        }
+
+        bottomSheetDialog.setContentView(bottomSheetView);
+        bottomSheetDialog.show();
     }
 
     private void handleLogCreationState(LogCreationState state) {
@@ -211,7 +248,8 @@ public class TodayFragment extends Fragment {
         isEdit = editable;
         selectedTime = startDate == null ? LocalDateTime.now() : startDate.atTime(LocalTime.now());
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());
-        builder.setTitle(editable ? R.string.update_log_title : R.string.add_log_title);
+        builder.setTitle(editable ? R.string.update_log_title : R.string.add_log_title)
+                .setCancelable(editable);
 
         View view = getLayoutInflater().inflate(R.layout.dialog_add_log, null);
         builder.setView(view);
@@ -299,20 +337,29 @@ public class TodayFragment extends Fragment {
 
                 if (!title.isEmpty()) {
                     if (editable && log != null) {
+                        boolean isChanged = false;
                         UpdateLogRequest request = new UpdateLogRequest();
                         if (!title.equalsIgnoreCase(log.getTitle())) {
                             request.setTitle(title);
+                            isChanged = true;
                         }
                         if (!description.equalsIgnoreCase(log.getDescription())) {
                             request.setDescription(description);
+                            isChanged = true;
                         }
                         if (!tag.equalsIgnoreCase(log.getTag())) {
                             request.setTag(tag);
+                            isChanged = true;
                         }
-                        if (selectedTime != log.getStartDate()){
+                        if (selectedTime != log.getStartDate()) {
                             request.setStartDate(selectedTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+                            isChanged = true;
                         }
-                        viewModel.updateLog(request, log.getId());
+                        if (isChanged) {
+                            viewModel.updateLog(request, log.getId());
+                        } else {
+                            addLogDialog.dismiss();
+                        }
                     } else {
                         CreateLogRequest request = new CreateLogRequest(title, description, tag, selectedTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
                         viewModel.createLog(request);

@@ -11,8 +11,7 @@
     <RelativeLayout
         android:id="@+id/calendar_container"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_height="wrap_content">
 
         <LinearLayout
             android:id="@+id/year_navigation_bar"
@@ -44,15 +43,14 @@
             android:id="@+id/calendarView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/year_navigation_bar"
-            android:layout_marginTop="8dp" />
+            android:layout_below="@id/year_navigation_bar" />
     </RelativeLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:padding="16dp">
+        android:layout_height="match_parent"
+        android:paddingHorizontal="16dp"
+        android:paddingBottom="16dp">
 
         <TextView
             android:id="@+id/selected_date_text"
