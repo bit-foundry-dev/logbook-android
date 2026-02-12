@@ -1,4 +1,4 @@
-package com.bit.logbook.feature.logManagement.presentation;
+package com.bit.logbook.feature.logManagement.presentation.trash;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bit.logbook.R;
+import com.bit.logbook.core.utils.DateUtils;
 import com.bit.logbook.feature.logManagement.domain.entity.Log;
 import com.github.vipulasri.timelineview.TimelineView;
 import com.google.android.material.chip.Chip;
@@ -18,7 +19,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
+public class TrashLogAdapter extends RecyclerView.Adapter<TrashLogAdapter.LogViewHolder> {
 
     private List<Log> logs = new ArrayList<>();
     private OnLogClickListener clickListener;
@@ -86,7 +87,7 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
     @Override
     public LogViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_timeline, parent, false);
+                .inflate(R.layout.item_trash, parent, false);
         return new LogViewHolder(view, viewType);
     }
 
@@ -108,56 +109,56 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
 
 
     public class LogViewHolder extends RecyclerView.ViewHolder {
-        private final TextView timeText;
-        private final TextView titleText;
-        private final TextView descriptionText;
-        private final Chip tagChip;
+        private final TextView trashTime;
+        private final TextView trashDate;
+        private final TextView trashTitle;
+        private final TextView trashDescription;
+        private final Chip trashTagChip;
 
         public LogViewHolder(@NonNull View itemView, int viewType) {
             super(itemView);
-            timeText = itemView.findViewById(R.id.text_timeline_time);
-            titleText = itemView.findViewById(R.id.text_timeline_title);
-            descriptionText = itemView.findViewById(R.id.text_timeline_description);
-            TimelineView timelineView = itemView.findViewById(R.id.timeline);
-
-            tagChip = itemView.findViewById(R.id.chip_tag);
-
-            timelineView.initLine(viewType);
+            trashTime = itemView.findViewById(R.id.trash_time);
+            trashDate = itemView.findViewById(R.id.trash_date);
+            trashTitle = itemView.findViewById(R.id.trash_title);
+            trashDescription= itemView.findViewById(R.id.trash_description);
+            trashTagChip = itemView.findViewById(R.id.trash_chip_tag);
         }
 
         public void bind(Log log, int position) {
             // Bind time
             if (log.getStartDate() != null) {
-                timeText.setText(log.getStartDate().format(timeFormatter));
+                trashTime.setText(log.getStartDate().format(timeFormatter));
+                trashDate.setText(DateUtils.formatFullDate(log.getStartDate().toLocalDate()));
             } else {
-                timeText.setText("--:--");
+                trashTime.setText("--:--");
+                trashDate.setText("__/__/____");
             }
 
             // Bind title
             String title = log.getTitle();
             if (title == null || title.trim().isEmpty()) {
-                titleText.setText(R.string.untitled);
+                trashTitle.setText(R.string.untitled);
             } else {
-                titleText.setText(title);
+                trashTitle.setText(title);
             }
 
             // Bind description
             String description = log.getDescription();
             if (description == null || description.trim().isEmpty()) {
-                descriptionText.setVisibility(View.GONE);
+                trashDescription.setVisibility(View.GONE);
             } else {
-                descriptionText.setVisibility(View.VISIBLE);
-                descriptionText.setText(description.replace("\n", " "));
+                trashDescription.setVisibility(View.VISIBLE);
+                trashDescription.setText(description.replace("\n", " "));
             }
 
             // Bind tag (optional - if you add chip to layout)
-            if (tagChip != null) {
+            if (trashTagChip != null) {
                 String tag = log.getTag();
                 if (tag != null && !tag.trim().isEmpty()) {
-                    tagChip.setVisibility(View.VISIBLE);
-                    tagChip.setText(tag);
+                    trashTagChip.setVisibility(View.VISIBLE);
+                    trashTagChip.setText(tag);
                 } else {
-                    tagChip.setVisibility(View.GONE);
+                    trashTagChip.setVisibility(View.GONE);
                 }
             }
 

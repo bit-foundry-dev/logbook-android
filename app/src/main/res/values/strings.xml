@@ -86,4 +86,12 @@
     <string name="move_to_trash_log_title">Move to trash</string>
     <string name="move_to_rash_log_confirmation">Would you like to move this log to trash?</string>
     <string name="delete_log_failed">Failed to delete log</string>
+    <string name="no_logs_here">No logs here</string>
+    <string name="restore">Restore</string>
+    <string name="delete_log_title">Delete log</string>
+    <string name="delete_log_confirmation">Would you like to delete this log permanently?</string>
+    <string name="move_to_trash">Move to trash</string>
+    <string name="log_restored">Log restored</string>
+    <string name="log_deleted">Log deleted</string>
+    <string name="log_moved_to_trash">Log moved to trash</string>
 </resources>

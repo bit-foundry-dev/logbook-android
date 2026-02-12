@@ -23,7 +23,7 @@ public class GetAllLogsUseCase extends UseCase<List<Log>, GetAllLogsUseCase.Para
 
     @Override
     protected List<Log> execute(GetAllLogsUseCase.Params params) throws Exception {
-        return repository.getAllLogs(params.startDate == null ? LocalDate.now() : params.startDate, params.isTrash);
+        return repository.getAllLogs(params.startDate, params.isTrash);
     }
 
     public record Params(LocalDate startDate, boolean isTrash) {

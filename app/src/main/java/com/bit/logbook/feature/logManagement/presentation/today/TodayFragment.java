@@ -1,9 +1,11 @@
 package com.bit.logbook.feature.logManagement.presentation.today;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -28,9 +30,8 @@ import com.bit.logbook.feature.logManagement.domain.entity.Log;
 import com.bit.logbook.feature.logManagement.presentation.LogAdapter;
 import com.bit.logbook.feature.logManagement.presentation.LogDeletionState;
 import com.bit.logbook.feature.logManagement.presentation.LogState;
+import com.bit.logbook.feature.logManagement.presentation.LogUtils.LogDialogsUtils;
 import com.bit.logbook.feature.logManagement.presentation.LogsViewModel;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.google.android.material.chip.Chip;
 import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.DateValidatorPointBackward;
 import com.google.android.material.datepicker.MaterialDatePicker;
@@ -67,7 +68,7 @@ public class TodayFragment extends Fragment {
     private View dialogContent;
     private boolean isEdit = false;
 
-    private LocalDate startDate;
+    private final LocalDate startDate;
 
     public TodayFragment(LocalDate startDate) {
         this.startDate = startDate;
@@ -114,7 +115,7 @@ public class TodayFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerView.setAdapter(adapter);
 
-        adapter.setOnLogClickListener((log, position) -> showLogDetailsBottomSheet(log));
+        adapter.setOnLogClickListener((log, position) -> LogDialogsUtils.showLogDetailsBottomSheet(requireContext(), log));
 
         adapter.setOnLogLongClickListener(this::showPopupMenu);
     }
@@ -137,42 +138,6 @@ public class TodayFragment extends Fragment {
         }
     }
 
-    private void showLogDetailsBottomSheet(Log log) {
-        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
-
-        View bottomSheetView = LayoutInflater.from(requireContext())
-                .inflate(R.layout.bottom_sheet_log_details, null);
-
-        TextView titleView = bottomSheetView.findViewById(R.id.detail_title);
-        TextView dateView = bottomSheetView.findViewById(R.id.detail_date);
-        TextView timeView = bottomSheetView.findViewById(R.id.detail_time);
-        Chip tagChip = bottomSheetView.findViewById(R.id.detail_tag);  // Changed to Chip
-        TextView descriptionView = bottomSheetView.findViewById(R.id.detail_description);
-        View divider = bottomSheetView.findViewById(R.id.divider);  // Added divider
-
-        titleView.setText(log.getTitle());
-        dateView.setText(DateUtils.formatFullDate(log.getStartDate().toLocalDate()));
-        timeView.setText(log.getStartDate().format(DateTimeFormatter.ofPattern("HH:mm")));
-
-        if (log.getTag() != null && !log.getTag().isEmpty()) {
-            tagChip.setText(log.getTag());
-            tagChip.setVisibility(View.VISIBLE);
-        } else {
-            tagChip.setVisibility(View.GONE);
-        }
-
-        if (log.getDescription() != null && !log.getDescription().isEmpty()) {
-            descriptionView.setText(log.getDescription());
-            descriptionView.setVisibility(View.VISIBLE);
-            divider.setVisibility(View.VISIBLE);
-        } else {
-            descriptionView.setVisibility(View.GONE);
-            divider.setVisibility(View.GONE);
-        }
-
-        bottomSheetDialog.setContentView(bottomSheetView);
-        bottomSheetDialog.show();
-    }
 
     private void handleLogCreationState(LogCreationState state) {
         if (state == null) return;
@@ -227,7 +192,7 @@ public class TodayFragment extends Fragment {
             viewModel.resetLogDeletionState();
         } else if (state.isDeleted()) {
             viewModel.getLogs(startDate, false);
-            Toast.makeText(requireContext(), "Log moved to trash", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), R.string.log_moved_to_trash, Toast.LENGTH_SHORT).show();
             viewModel.resetLogDeletionState();
         }
     }
@@ -287,6 +252,8 @@ public class TodayFragment extends Fragment {
             selectedTime = log.getStartDate();
         } else {
             titleEditText.requestFocus();
+            InputMethodManager imm = (InputMethodManager) requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(titleEditText, InputMethodManager.SHOW_IMPLICIT);
             timeEditText.setText(selectedTime.format(DateTimeFormatter.ofPattern("HH:mm")));
             dateEditText.setText(DateUtils.formatFullDate(selectedTime.toLocalDate()));
         }
@@ -348,9 +315,9 @@ public class TodayFragment extends Fragment {
         addLogDialog.setOnShowListener(dialogInterface -> {
             Button button = addLogDialog.getButton(AlertDialog.BUTTON_POSITIVE);
             button.setOnClickListener(v -> {
-                String title = titleEditText.getText().toString();
-                String description = descriptionEditText.getText().toString();
-                String tag = tagEditText.getText().toString();
+                String title = titleEditText.getText().toString().trim();
+                String description = descriptionEditText.getText().toString().trim();
+                String tag = tagEditText.getText().toString().trim();
 
                 if (!title.isEmpty()) {
                     if (editable && log != null) {
@@ -406,7 +373,7 @@ public class TodayFragment extends Fragment {
             if (itemId == R.id.menu_edit) {
                 showAddLogDialog(true, log);
                 return true;
-            } else if (itemId == R.id.menu_delete) {
+            } else if (itemId == R.id.menu_move_to_trash) {
                 showMoveToTrashConfirmationDialog(log);
                 return true;
             }
@@ -420,9 +387,7 @@ public class TodayFragment extends Fragment {
         new MaterialAlertDialogBuilder(requireContext())
                 .setTitle(R.string.move_to_trash_log_title)
                 .setMessage(R.string.move_to_rash_log_confirmation)
-                .setPositiveButton(R.string.delete, (dialog, which) -> {
-                    viewModel.deleteLog(log.getId());
-                })
+                .setPositiveButton(R.string.move_to_trash, (dialog, which) -> viewModel.deleteLog(log.getId()))
                 .setNegativeButton(R.string.cancel, null)
                 .show();
     }
