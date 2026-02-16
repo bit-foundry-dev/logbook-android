@@ -24,7 +24,6 @@ public class TrashLogAdapter extends RecyclerView.Adapter<TrashLogAdapter.LogVie
     private List<Log> logs = new ArrayList<>();
     private OnLogClickListener clickListener;
     private OnLogLongClickListener longClickListener;
-    private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
     // Click listener interfaces
     public interface OnLogClickListener {
@@ -120,14 +119,14 @@ public class TrashLogAdapter extends RecyclerView.Adapter<TrashLogAdapter.LogVie
             trashTime = itemView.findViewById(R.id.trash_time);
             trashDate = itemView.findViewById(R.id.trash_date);
             trashTitle = itemView.findViewById(R.id.trash_title);
-            trashDescription= itemView.findViewById(R.id.trash_description);
+            trashDescription = itemView.findViewById(R.id.trash_description);
             trashTagChip = itemView.findViewById(R.id.trash_chip_tag);
         }
 
         public void bind(Log log, int position) {
             // Bind time
             if (log.getStartDate() != null) {
-                trashTime.setText(log.getStartDate().format(timeFormatter));
+                trashTime.setText(DateUtils.formatTime(log.getStartDate()));
                 trashDate.setText(DateUtils.formatFullDate(log.getStartDate().toLocalDate()));
             } else {
                 trashTime.setText("--:--");

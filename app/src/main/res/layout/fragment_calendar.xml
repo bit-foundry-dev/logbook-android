@@ -17,7 +17,7 @@
             android:id="@+id/year_navigation_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:elevation="4dp"
+            android:background="@color/background_color"
             android:gravity="center"
             android:orientation="horizontal">
 
@@ -43,29 +43,61 @@
             android:id="@+id/calendarView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/year_navigation_bar" />
+            android:layout_below="@id/year_navigation_bar"
+            android:background="@color/background_color"
+            android:hapticFeedbackEnabled="true" />
     </RelativeLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@color/background_color"
         android:paddingHorizontal="16dp"
         android:paddingBottom="16dp">
 
-        <TextView
-            android:id="@+id/selected_date_text"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/selected_date_container"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:text="23 January 2025"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:orientation="horizontal">
+
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:alpha="0.5"
+                app:dividerColor="@color/text_color"
+                app:dividerThickness="1dp" />
+
+            <TextView
+                android:id="@+id/selected_date_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:gravity="center"
+                android:text="23 January 2025"
+                android:textColor="@color/text_color"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:alpha="0.5"
+                app:dividerColor="@color/text_color"
+                app:dividerThickness="1dp" />
+
+        </LinearLayout>
+
 
         <FrameLayout
             android:id="@+id/fragment_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/selected_date_text"
+            android:layout_below="@id/selected_date_container"
             android:layout_marginTop="8dp" />
 
     </RelativeLayout>

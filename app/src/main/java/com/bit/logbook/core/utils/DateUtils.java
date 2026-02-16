@@ -2,6 +2,7 @@ package com.bit.logbook.core.utils;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
@@ -32,5 +33,10 @@ public class DateUtils {
     public static String formatMonthYear(Calendar calendar) {
         SimpleDateFormat sdf = new SimpleDateFormat("MMMM yyyy", Locale.ENGLISH);
         return sdf.format(calendar.getTime());
+    }
+
+    public static String formatTime(LocalDateTime localDateTime) {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm");
+        return dtf.format(localDateTime);
     }
 }

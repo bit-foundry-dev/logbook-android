@@ -94,4 +94,12 @@
     <string name="log_restored">Log restored</string>
     <string name="log_deleted">Log deleted</string>
     <string name="log_moved_to_trash">Log moved to trash</string>
+    <string name="add_log">Add log</string>
+    <string name="move_all_to_trash">Move all to trash</string>
+    <string name="refresh">Refresh</string>
+    <string name="delete_all">Delete all</string>
+    <string name="restore_all">Restore all</string>
+    <string name="hour_symbole">h</string>
+    <string name="minute_symbole">m</string>
+    <string name="second_symbole">s</string>
 </resources>

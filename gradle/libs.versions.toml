@@ -1,5 +1,5 @@
 [versions]
-agp = "9.0.0"
+agp = "9.0.1"
 coreSplashscreen = "1.2.0"
 fabulousfilter = "0.0.6"
 gson = "2.13.2"

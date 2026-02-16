@@ -1,5 +1,6 @@
 package com.bit.logbook.feature.logManagement.presentation;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,20 +11,25 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bit.logbook.R;
+import com.bit.logbook.core.utils.DateUtils;
 import com.bit.logbook.feature.logManagement.domain.entity.Log;
 import com.github.vipulasri.timelineview.TimelineView;
 import com.google.android.material.chip.Chip;
 
-import java.time.format.DateTimeFormatter;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
 public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
 
+    private final Context context;
     private List<Log> logs = new ArrayList<>();
     private OnLogClickListener clickListener;
     private OnLogLongClickListener longClickListener;
-    private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+
+    public LogAdapter(Context context) {
+        this.context = context;
+    }
 
     // Click listener interfaces
     public interface OnLogClickListener {
@@ -93,7 +99,15 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull LogViewHolder holder, int position) {
         Log log = logs.get(position);
-        holder.bind(log, position);
+        Log nextLog = null;
+        boolean isLastItem = (position == logs.size() - 1);
+
+        // For any position except the last, the next log is at position + 1
+        if (!isLastItem) {
+            nextLog = logs.get(position + 1);
+        }
+
+        holder.bind(log, nextLog, isLastItem);
     }
 
     @Override
@@ -111,6 +125,7 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
         private final TextView timeText;
         private final TextView titleText;
         private final TextView descriptionText;
+        private final TextView timeDifferenceText;
         private final Chip tagChip;
 
         public LogViewHolder(@NonNull View itemView, int viewType) {
@@ -118,17 +133,17 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
             timeText = itemView.findViewById(R.id.text_timeline_time);
             titleText = itemView.findViewById(R.id.text_timeline_title);
             descriptionText = itemView.findViewById(R.id.text_timeline_description);
+            timeDifferenceText = itemView.findViewById(R.id.text_time_difference);
             TimelineView timelineView = itemView.findViewById(R.id.timeline);
-
             tagChip = itemView.findViewById(R.id.chip_tag);
 
             timelineView.initLine(viewType);
         }
 
-        public void bind(Log log, int position) {
+        public void bind(Log log, Log nextLog, boolean isLastItem) {
             // Bind time
             if (log.getStartDate() != null) {
-                timeText.setText(log.getStartDate().format(timeFormatter));
+                timeText.setText(DateUtils.formatTime(log.getStartDate()));
             } else {
                 timeText.setText("--:--");
             }
@@ -150,7 +165,10 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
                 descriptionText.setText(description.replace("\n", " "));
             }
 
-            // Bind tag (optional - if you add chip to layout)
+            // Bind time difference
+            bindTimeDifference(log, nextLog, isLastItem);
+
+            // Bind tag
             if (tagChip != null) {
                 String tag = log.getTag();
                 if (tag != null && !tag.trim().isEmpty()) {
@@ -161,21 +179,117 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
                 }
             }
 
-            // Set click listener
+            // Set click listeners
             itemView.setOnClickListener(v -> {
                 if (clickListener != null) {
-                    clickListener.onLogClick(log, position);
+                    clickListener.onLogClick(log, getAdapterPosition());
                 }
             });
 
-            // Set long click listener
             itemView.setOnLongClickListener(v -> {
                 if (longClickListener != null) {
-                    longClickListener.onLogLongClick(v, log, position);
+                    longClickListener.onLogLongClick(v, log, getAdapterPosition());
                     return true;
                 }
                 return false;
             });
+        }
+
+        /**
+         * Binds the time difference to the next log.
+         * Shows the gap between this log and the next log (chronologically older).
+         * Hides for the last item (no next log to compare to).
+         */
+        private void bindTimeDifference(Log log, Log nextLog, boolean isLastItem) {
+            if (log.getStartDate() == null) {
+                timeDifferenceText.setVisibility(View.GONE);
+                return;
+            }
+
+            // Last item has no next log, so hide duration
+            if (isLastItem) {
+                timeDifferenceText.setVisibility(View.GONE);
+                return;
+            }
+
+            // Show time difference to the next log
+            if (nextLog != null && nextLog.getStartDate() != null) {
+                try {
+                    // Calculate duration between current log and next log
+                    Duration duration = Duration.between(nextLog.getStartDate(), log.getStartDate()).abs();
+                    String formattedDuration = formatDuration(duration);
+
+                    if (formattedDuration != null && !formattedDuration.isEmpty()) {
+                        timeDifferenceText.setText(formattedDuration);
+                        timeDifferenceText.setVisibility(View.VISIBLE);
+                    } else {
+                        timeDifferenceText.setVisibility(View.GONE);
+                    }
+                } catch (Exception e) {
+                    timeDifferenceText.setVisibility(View.GONE);
+                }
+            } else {
+                timeDifferenceText.setVisibility(View.GONE);
+            }
+        }
+
+        /**
+         * Formats a duration into a human-readable string.
+         * Handles durations from seconds to days.
+         *
+         * @param duration The duration to format
+         * @return Formatted string like "2d 5h", "3h 45m 30s", "< 1s", or null if invalid
+         */
+        private String formatDuration(Duration duration) {
+            if (duration == null) {
+                return null;
+            }
+
+            long totalSeconds = duration.getSeconds();
+
+            // Less than 1 second
+            if (totalSeconds < 1) {
+                return "< 1s";
+            }
+
+            // Calculate components
+            long days = duration.toDays();
+            long hours = duration.toHours() % 24;
+            long minutes = duration.toMinutes() % 60;
+            long seconds = duration.getSeconds() % 60;
+
+            StringBuilder result = new StringBuilder();
+
+            // Add days if present
+            if (days > 0) {
+                result.append(days).append("d");
+            }
+
+            // Add hours if present
+            if (hours > 0) {
+                if (result.length() > 0) {
+                    result.append(" ");
+                }
+                result.append(hours).append(context.getString(R.string.hour_symbole));
+            }
+
+            // Add minutes if less than a day
+            if (minutes > 0 && days == 0) {
+                if (result.length() > 0) {
+                    result.append(" ");
+                }
+                result.append(minutes).append(context.getString(R.string.minute_symbole));
+            }
+
+            // Add seconds only if less than an hour (to avoid clutter)
+            if (seconds > 0 && hours == 0 && days == 0) {
+                if (result.length() > 0) {
+                    result.append(" ");
+                }
+                result.append(seconds).append(context.getString(R.string.second_symbole));
+            }
+
+            return result.length() > 0 ? result.toString() : null;
         }
     }
 
@@ -201,7 +315,6 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
 
         @Override
         public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-            // Compare by ID
             Log oldLog = oldList.get(oldItemPosition);
             Log newLog = newList.get(newItemPosition);
             return oldLog.getId().equals(newLog.getId());
@@ -209,7 +322,6 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
 
         @Override
         public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-            // Compare all fields
             Log oldLog = oldList.get(oldItemPosition);
             Log newLog = newList.get(newItemPosition);
 

@@ -3,8 +3,12 @@ package com.bit.logbook.feature.logManagement.presentation.today;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -17,7 +21,9 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -36,7 +42,6 @@ import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.DateValidatorPointBackward;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
 
@@ -47,6 +52,7 @@ import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -58,10 +64,9 @@ public class TodayFragment extends Fragment {
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
     private LinearLayout errorContainer;
-    private TextView errorMessage;
+    private TextView errorMessage, emptyText;
     private Button retryButton;
     private LinearLayout emptyStateContainer;
-    private FloatingActionButton addLogBtn;
     private LocalDateTime selectedTime;
     private AlertDialog addLogDialog;
     private ProgressBar dialogProgressBar;
@@ -89,14 +94,13 @@ public class TodayFragment extends Fragment {
         progressBar = rootView.findViewById(R.id.progress_bar);
         errorContainer = rootView.findViewById(R.id.error_container);
         errorMessage = rootView.findViewById(R.id.error_message);
+        emptyText = rootView.findViewById(R.id.empty_text);
         retryButton = rootView.findViewById(R.id.retry_button);
         emptyStateContainer = rootView.findViewById(R.id.empty_state_container);
-        addLogBtn = rootView.findViewById(R.id.fab_add_log);
 
         setupRecyclerView();
 
         retryButton.setOnClickListener(v -> viewModel.getLogs(startDate, false));
-        addLogBtn.setOnClickListener(v -> showAddLogDialog(false, null));
 
         return rootView;
     }
@@ -108,14 +112,43 @@ public class TodayFragment extends Fragment {
 
         // Load logs for today
         viewModel.getLogs(startDate, false);
+
+        // Add menu provider
+        requireActivity().addMenuProvider(new MenuProvider() {
+            @Override
+            public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
+                menu.clear();
+                menuInflater.inflate(R.menu.log_options_menu, menu);
+            }
+
+            @Override
+            public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
+                int id = menuItem.getItemId();
+
+                if (id == R.id.menu_add_log) {
+                    showAddLogDialog(false, null);
+                    return true;
+                } else if (id == R.id.menu_refresh_logs) {
+                    viewModel.getLogs(startDate, false);
+                } else if (id == R.id.menu_move_all_to_trash) {
+                    Toast.makeText(requireContext(), "All to trash", Toast.LENGTH_SHORT).show();
+                    return true;
+                }
+
+                return false;
+            }
+        }, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
     }
 
     private void setupRecyclerView() {
-        adapter = new LogAdapter();
+        adapter = new LogAdapter(requireContext());
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerView.setAdapter(adapter);
 
-        adapter.setOnLogClickListener((log, position) -> LogDialogsUtils.showLogDetailsBottomSheet(requireContext(), log));
+        adapter.setOnLogClickListener((log, position) -> {
+            Toast.makeText(requireContext(), "position: " + position, Toast.LENGTH_SHORT).show();
+            LogDialogsUtils.showLogDetailsBottomSheet(requireContext(), log);
+        });
 
         adapter.setOnLogLongClickListener(this::showPopupMenu);
     }
@@ -218,6 +251,7 @@ public class TodayFragment extends Fragment {
         if (logs.isEmpty()) {
             recyclerView.setVisibility(View.GONE);
             emptyStateContainer.setVisibility(View.VISIBLE);
+            emptyText.setText(startDate.isBefore(LocalDate.now()) ? R.string.no_logs_here : R.string.no_logs_today);
         } else {
             recyclerView.setVisibility(View.VISIBLE);
             emptyStateContainer.setVisibility(View.GONE);
@@ -247,14 +281,11 @@ public class TodayFragment extends Fragment {
             titleEditText.setText(log.getTitle());
             descriptionEditText.setText(log.getDescription());
             tagEditText.setText(log.getTag());
-            timeEditText.setText(log.getStartDate().format(DateTimeFormatter.ofPattern("HH:mm")));
+            timeEditText.setText(DateUtils.formatTime(log.getStartDate()));
             dateEditText.setText(DateUtils.formatFullDate(log.getStartDate().toLocalDate()));
             selectedTime = log.getStartDate();
         } else {
-            titleEditText.requestFocus();
-            InputMethodManager imm = (InputMethodManager) requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.showSoftInput(titleEditText, InputMethodManager.SHOW_IMPLICIT);
-            timeEditText.setText(selectedTime.format(DateTimeFormatter.ofPattern("HH:mm")));
+            timeEditText.setText(DateUtils.formatTime(selectedTime));
             dateEditText.setText(DateUtils.formatFullDate(selectedTime.toLocalDate()));
         }
 
@@ -269,7 +300,7 @@ public class TodayFragment extends Fragment {
             timePicker.addOnPositiveButtonClickListener(dialog -> {
                 selectedTime = selectedTime.withHour(timePicker.getHour()).withMinute(timePicker.getMinute());
 
-                timeEditText.setText(selectedTime.format(DateTimeFormatter.ofPattern("HH:mm")));
+                timeEditText.setText(DateUtils.formatTime(selectedTime));
             });
 
             timePicker.show(getChildFragmentManager(), "TIME_PICKER");
@@ -313,6 +344,11 @@ public class TodayFragment extends Fragment {
         addLogDialog = builder.create();
 
         addLogDialog.setOnShowListener(dialogInterface -> {
+            if (!editable) {
+                titleEditText.requestFocus();
+                InputMethodManager imm = (InputMethodManager) requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(titleEditText, InputMethodManager.SHOW_IMPLICIT);
+            }
             Button button = addLogDialog.getButton(AlertDialog.BUTTON_POSITIVE);
             button.setOnClickListener(v -> {
                 String title = titleEditText.getText().toString().trim();
@@ -362,6 +398,8 @@ public class TodayFragment extends Fragment {
         });
 
         addLogDialog.show();
+        Objects.requireNonNull(addLogDialog.getWindow()).setSoftInputMode(
+                WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
     }
 
     private void showPopupMenu(View view, Log log, int position) {
@@ -402,7 +440,6 @@ public class TodayFragment extends Fragment {
         errorMessage = null;
         retryButton = null;
         emptyStateContainer = null;
-        addLogBtn = null;
         addLogDialog = null;
         dialogProgressBar = null;
         dialogContent = null;
