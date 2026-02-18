@@ -10,8 +10,8 @@ import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
-import retrofit2.http.DELETE;
 import retrofit2.http.GET;
+import retrofit2.http.HTTP;
 import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
@@ -28,6 +28,9 @@ public interface LogApiService {
     @PATCH("events/{id}")
     Call<ApiResponse<LogDto>> updateLog(@Body UpdateLogRequest request, @Path("id") String id);
 
-    @DELETE("events/{id}")
-    Call<ApiResponse<Void>> deleteLog(@Path("id") String id);
+    @PATCH("events/restore")
+    Call<ApiResponse<Void>> restoreLogs(@Body List<String> ids);
+
+    @HTTP(method = "DELETE", path = "events", hasBody = true)
+    Call<ApiResponse<Void>> deleteLogs(@Body List<String> ids);
 }

@@ -14,5 +14,7 @@ public interface LogRepository {
 
     Log updateLog(UpdateLogRequest request, String id) throws Exception;
 
-    void deleteLog(String id) throws Exception;
+    void restoreLogs(List<String> ids) throws Exception;
+
+    void deleteLogs(List<String> ids) throws Exception;
 }

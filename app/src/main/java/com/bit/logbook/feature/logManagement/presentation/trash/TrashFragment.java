@@ -24,7 +24,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bit.logbook.R;
-import com.bit.logbook.feature.logManagement.data.model.UpdateLogRequest;
 import com.bit.logbook.feature.logManagement.domain.entity.Log;
 import com.bit.logbook.feature.logManagement.presentation.LogDeletionState;
 import com.bit.logbook.feature.logManagement.presentation.LogState;
@@ -34,6 +33,7 @@ import com.bit.logbook.feature.logManagement.presentation.today.LogCreationState
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -86,13 +86,21 @@ public class TrashFragment extends Fragment {
             public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
                 int id = menuItem.getItemId();
 
-                /*if (id == R.id.menu_restore_all) {
-                    Toast.makeText(requireContext(), "Restore all", Toast.LENGTH_SHORT).show();
+                if (id == R.id.menu_restore_all) {
+                    if (adapter.getItemCount() > 0) {
+                        showRestoreAllConfirmationDialog();
+                    } else {
+                        Toast.makeText(requireContext(), R.string.no_logs_found, Toast.LENGTH_SHORT).show();
+                    }
                     return true;
-                } else*/ if (id == R.id.menu_refresh_trash) {
+                } else if (id == R.id.menu_refresh_trash) {
                     viewModel.getLogs(null, true);
-                } else if (id == R.id.menu_delete_all) {
-                    Toast.makeText(requireContext(), "Delete all", Toast.LENGTH_SHORT).show();
+                } else if (id == R.id.menu_empty_trash) {
+                    if (adapter.getItemCount() > 0) {
+                        showEmptyTrashConfirmationDialog();
+                    } else {
+                        Toast.makeText(requireContext(), R.string.no_logs_found, Toast.LENGTH_SHORT).show();
+                    }
                     return true;
                 }
 
@@ -140,7 +148,7 @@ public class TrashFragment extends Fragment {
             viewModel.getLogs(null, true);
             Toast.makeText(requireContext(), state.getError(), Toast.LENGTH_SHORT).show();
             viewModel.resetLogCreationState();
-        } else if (state.getLog() != null) {
+        } else if (state.getLog() == null) {
             viewModel.getLogs(null, true);
             Toast.makeText(requireContext(), R.string.log_restored, Toast.LENGTH_SHORT).show();
             viewModel.resetLogCreationState();
@@ -198,9 +206,7 @@ public class TrashFragment extends Fragment {
         popupMenu.setOnMenuItemClickListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.menu_restore) {
-                UpdateLogRequest request = new UpdateLogRequest();
-                request.setTrash(false);
-                viewModel.updateLog(request, log.getId());
+                viewModel.restoreLogs(List.of(log.getId()));
                 return true;
             } else if (itemId == R.id.menu_delete) {
                 showDeleteConfirmationDialog(log);
@@ -216,7 +222,37 @@ public class TrashFragment extends Fragment {
         new MaterialAlertDialogBuilder(requireContext())
                 .setTitle(R.string.delete_log_title)
                 .setMessage(R.string.delete_log_confirmation)
-                .setPositiveButton(R.string.delete, (dialog, which) -> viewModel.deleteLog(log.getId()))
+                .setPositiveButton(R.string.delete, (dialog, which) -> viewModel.deleteLogs(List.of(log.getId())))
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+    }
+
+    private void showEmptyTrashConfirmationDialog() {
+        List<String> logIds = adapter.getLogs().stream()
+                .map(Log::getId)
+                .collect(Collectors.toList());
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.empty_trash)
+                .setMessage(R.string.empty_trash_confirmation)
+                .setPositiveButton(R.string.empty_trash, (dialog, which) -> {
+                    viewModel.deleteLogs(logIds);
+                    adapter.clearLogs();
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+    }
+
+    private void showRestoreAllConfirmationDialog() {
+        List<String> logIds = adapter.getLogs().stream()
+                .map(Log::getId)
+                .collect(Collectors.toList());
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.restore_all)
+                .setMessage(R.string.restore_all_confirmation)
+                .setPositiveButton(R.string.restore_all, (dialog, which) -> {
+                    viewModel.restoreLogs(logIds);
+                    adapter.clearLogs();
+                })
                 .setNegativeButton(R.string.cancel, null)
                 .show();
     }

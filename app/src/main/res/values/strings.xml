@@ -52,7 +52,7 @@
     <string name="reset_password_failed">Failed to send reset password email</string>
     <string name="resend_verification_failed">Failed to resend verification email</string>
     <string name="or">OR</string>
-    <string name="today">Today</string>
+    <string name="today">today</string>
     <string name="calendar">Calendar</string>
     <string name="trash">Trash</string>
     <string name="settings">Settings</string>
@@ -84,7 +84,7 @@
     <string name="delete">Delete</string>
     <string name="edit">Edit</string>
     <string name="move_to_trash_log_title">Move to trash</string>
-    <string name="move_to_rash_log_confirmation">Would you like to move this log to trash?</string>
+    <string name="move_to_trash_log_confirmation">Would you like to move this log to trash?</string>
     <string name="delete_log_failed">Failed to delete log</string>
     <string name="no_logs_here">No logs here</string>
     <string name="restore">Restore</string>
@@ -102,4 +102,11 @@
     <string name="hour_symbole">h</string>
     <string name="minute_symbole">m</string>
     <string name="second_symbole">s</string>
+    <string name="move_all_to_trash_title">Move all to trash</string>
+    <string name="move_all_to_trash_confirmation_p1">Would you like to move all logs for</string>
+    <string name="move_all_to_trash_confirmation_p2">to trash</string>
+    <string name="empty_trash_confirmation">Would you like to empty the trash? this will permanently delete all logs</string>
+    <string name="empty_trash">Empty trash</string>
+    <string name="restore_all_confirmation">Would you like to restore all logs in the trash?</string>
+    <string name="restore_log_failed">Failed to restore logs</string>
 </resources>

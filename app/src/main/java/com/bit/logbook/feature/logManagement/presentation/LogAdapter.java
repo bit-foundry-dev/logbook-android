@@ -81,6 +81,10 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
         return null;
     }
 
+    public List<Log> getLogs() {
+        return logs;
+    }
+
     public void removeLog(int position) {
         if (position >= 0 && position < logs.size()) {
             logs.remove(position);

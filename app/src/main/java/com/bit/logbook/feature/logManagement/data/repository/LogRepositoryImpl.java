@@ -92,8 +92,17 @@ public class LogRepositoryImpl extends BaseRepository implements LogRepository {
     }
 
     @Override
-    public void deleteLog(String id) throws Exception {
-        Response<ApiResponse<Void>> response = apiService.deleteLog(id).execute();
+    public void restoreLogs(List<String> ids) throws Exception {
+        Response<ApiResponse<Void>> response = apiService.restoreLogs(ids).execute();
+
+        if (!response.isSuccessful()) {
+            throw new GenericException(strings.get(R.string.generic_error), response.code());
+        }
+    }
+
+    @Override
+    public void deleteLogs(List<String> ids) throws Exception {
+        Response<ApiResponse<Void>> response = apiService.deleteLogs(ids).execute();
 
         if (!response.isSuccessful()) {
             throw new GenericException(strings.get(R.string.generic_error), response.code());

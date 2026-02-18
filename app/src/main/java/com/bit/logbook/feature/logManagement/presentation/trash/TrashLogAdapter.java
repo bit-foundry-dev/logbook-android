@@ -17,6 +17,7 @@ import com.google.android.material.chip.Chip;
 
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class TrashLogAdapter extends RecyclerView.Adapter<TrashLogAdapter.LogViewHolder> {
@@ -24,6 +25,10 @@ public class TrashLogAdapter extends RecyclerView.Adapter<TrashLogAdapter.LogVie
     private List<Log> logs = new ArrayList<>();
     private OnLogClickListener clickListener;
     private OnLogLongClickListener longClickListener;
+
+    public List<Log> getLogs() {
+        return logs;
+    }
 
     // Click listener interfaces
     public interface OnLogClickListener {

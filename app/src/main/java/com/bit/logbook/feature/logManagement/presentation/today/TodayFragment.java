@@ -53,6 +53,7 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -131,7 +132,11 @@ public class TodayFragment extends Fragment {
                 } else if (id == R.id.menu_refresh_logs) {
                     viewModel.getLogs(startDate, false);
                 } else if (id == R.id.menu_move_all_to_trash) {
-                    Toast.makeText(requireContext(), "All to trash", Toast.LENGTH_SHORT).show();
+                    if (adapter.getItemCount() > 0) {
+                        showMoveAllToTrashConfirmationDialog();
+                    } else {
+                        Toast.makeText(requireContext(), R.string.no_logs_found, Toast.LENGTH_SHORT).show();
+                    }
                     return true;
                 }
 
@@ -145,10 +150,7 @@ public class TodayFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerView.setAdapter(adapter);
 
-        adapter.setOnLogClickListener((log, position) -> {
-            Toast.makeText(requireContext(), "position: " + position, Toast.LENGTH_SHORT).show();
-            LogDialogsUtils.showLogDetailsBottomSheet(requireContext(), log);
-        });
+        adapter.setOnLogClickListener((log, position) -> LogDialogsUtils.showLogDetailsBottomSheet(requireContext(), log));
 
         adapter.setOnLogLongClickListener(this::showPopupMenu);
     }
@@ -424,8 +426,25 @@ public class TodayFragment extends Fragment {
     private void showMoveToTrashConfirmationDialog(Log log) {
         new MaterialAlertDialogBuilder(requireContext())
                 .setTitle(R.string.move_to_trash_log_title)
-                .setMessage(R.string.move_to_rash_log_confirmation)
-                .setPositiveButton(R.string.move_to_trash, (dialog, which) -> viewModel.deleteLog(log.getId()))
+                .setMessage(R.string.move_to_trash_log_confirmation)
+                .setPositiveButton(R.string.move_to_trash, (dialog, which) -> viewModel.deleteLogs(List.of(log.getId())))
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+    }
+
+    private void showMoveAllToTrashConfirmationDialog() {
+        List<String> logIds = adapter.getLogs().stream()
+                .map(Log::getId)
+                .collect(Collectors.toList());
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.move_all_to_trash_title)
+                .setMessage(getString(R.string.move_all_to_trash_confirmation_p1).concat(" ")
+                        .concat(startDate.equals(LocalDate.now()) ? getString(R.string.today) : DateUtils.formatFullDate(startDate))
+                        .concat(" ").concat(getString(R.string.move_all_to_trash_confirmation_p2)))
+                .setPositiveButton(R.string.move_to_trash, (dialog, which) -> {
+                    viewModel.deleteLogs(logIds);
+                    adapter.clearLogs();
+                })
                 .setNegativeButton(R.string.cancel, null)
                 .show();
     }

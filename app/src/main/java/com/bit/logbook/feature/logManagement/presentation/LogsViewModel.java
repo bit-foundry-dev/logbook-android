@@ -10,8 +10,9 @@ import com.bit.logbook.feature.logManagement.data.model.CreateLogRequest;
 import com.bit.logbook.feature.logManagement.data.model.UpdateLogRequest;
 import com.bit.logbook.feature.logManagement.domain.entity.Log;
 import com.bit.logbook.feature.logManagement.domain.usercase.CreateLogUseCase;
-import com.bit.logbook.feature.logManagement.domain.usercase.DeleteLogUseCase;
+import com.bit.logbook.feature.logManagement.domain.usercase.DeleteLogsUseCase;
 import com.bit.logbook.feature.logManagement.domain.usercase.GetAllLogsUseCase;
+import com.bit.logbook.feature.logManagement.domain.usercase.RestoreLogsUseCase;
 import com.bit.logbook.feature.logManagement.domain.usercase.UpdateLogUseCase;
 import com.bit.logbook.feature.logManagement.presentation.today.LogCreationState;
 
@@ -29,7 +30,8 @@ public class LogsViewModel extends BaseViewModel {
     private final GetAllLogsUseCase getAllLogsUseCase;
     private final CreateLogUseCase createLogUseCase;
     private final UpdateLogUseCase updateLogUseCase;
-    private final DeleteLogUseCase deleteLogUseCase;
+    private final RestoreLogsUseCase restoreLogsUseCase;
+    private final DeleteLogsUseCase deleteLogsUseCase;
     private final StringProvider stringProvider;
 
     private final MutableLiveData<LogState> logState = new MutableLiveData<>();
@@ -37,11 +39,12 @@ public class LogsViewModel extends BaseViewModel {
     private final MutableLiveData<LogDeletionState> logDeletionState = new MutableLiveData<>();
 
     @Inject
-    public LogsViewModel(GetAllLogsUseCase getAllLogsUseCase, CreateLogUseCase createLogUseCase, UpdateLogUseCase updateLogUseCase, DeleteLogUseCase deleteLogUseCase, StringProvider stringProvider) {
+    public LogsViewModel(GetAllLogsUseCase getAllLogsUseCase, CreateLogUseCase createLogUseCase, UpdateLogUseCase updateLogUseCase, RestoreLogsUseCase restoreLogsUseCase, DeleteLogsUseCase deleteLogsUseCase, StringProvider stringProvider) {
         this.getAllLogsUseCase = getAllLogsUseCase;
         this.createLogUseCase = createLogUseCase;
         this.updateLogUseCase = updateLogUseCase;
-        this.deleteLogUseCase = deleteLogUseCase;
+        this.restoreLogsUseCase = restoreLogsUseCase;
+        this.deleteLogsUseCase = deleteLogsUseCase;
         this.stringProvider = stringProvider;
     }
 
@@ -120,11 +123,32 @@ public class LogsViewModel extends BaseViewModel {
         });
     }
 
-    public void deleteLog(String id) {
+    public void restoreLogs(List<String> ids) {
+        logCreationState.setValue(LogCreationState.loading());
+
+        RestoreLogsUseCase.Params params = new RestoreLogsUseCase.Params(ids);
+        restoreLogsUseCase.executeAsync(params, new RestoreLogsUseCase.UseCaseCallback<>() {
+            @Override
+            public void onSuccess(Void unused) {
+                logCreationState.postValue(LogCreationState.success(null));
+            }
+
+            @Override
+            public void onError(Throwable error) {
+                if (error instanceof IOException) {
+                    logCreationState.postValue(LogCreationState.error(stringProvider.get(R.string.error_no_network)));
+                } else {
+                    logCreationState.postValue(LogCreationState.error(stringProvider.get(R.string.restore_log_failed)));
+                }
+            }
+        });
+    }
+
+    public void deleteLogs(List<String> ids) {
         logDeletionState.setValue(LogDeletionState.loading());
 
-        DeleteLogUseCase.Params params = new DeleteLogUseCase.Params(id);
-        deleteLogUseCase.executeAsync(params, new DeleteLogUseCase.UseCaseCallback<>() {
+        DeleteLogsUseCase.Params params = new DeleteLogsUseCase.Params(ids);
+        deleteLogsUseCase.executeAsync(params, new DeleteLogsUseCase.UseCaseCallback<>() {
             @Override
             public void onSuccess(Void unused) {
                 logDeletionState.postValue(LogDeletionState.success());
