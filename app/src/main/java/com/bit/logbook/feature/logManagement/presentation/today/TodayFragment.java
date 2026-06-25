@@ -208,7 +208,10 @@ public class TodayFragment extends Fragment {
                 addLogDialog.dismiss();
             }
             viewModel.getLogs(startDate, false);
-            if (isEdit) {
+            String toastMsg = state.getMessage();
+            if (toastMsg != null) {
+                Toast.makeText(requireContext(), toastMsg, Toast.LENGTH_SHORT).show();
+            } else if (isEdit) {
                 Toast.makeText(requireContext(), R.string.update_log_successful, Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(requireContext(), R.string.create_log_successful, Toast.LENGTH_SHORT).show();

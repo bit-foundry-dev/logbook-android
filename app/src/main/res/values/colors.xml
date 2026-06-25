@@ -9,4 +9,8 @@
 
 
     <color name="red_error">#8C0404</color>
+
+    <color name="sync_synced">#2E7D32</color>
+    <color name="sync_pending">#F57F17</color>
+    <color name="sync_error">#C62828</color>
 </resources>

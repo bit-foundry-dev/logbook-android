@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.bit.logbook.R;
+import com.bit.logbook.core.data.sync.SyncManager;
 import com.bit.logbook.core.domain.StringProvider;
 import com.bit.logbook.core.presentation.BaseViewModel;
 import com.bit.logbook.feature.logManagement.data.model.CreateLogRequest;
@@ -16,7 +17,6 @@ import com.bit.logbook.feature.logManagement.domain.usercase.RestoreLogsUseCase;
 import com.bit.logbook.feature.logManagement.domain.usercase.UpdateLogUseCase;
 import com.bit.logbook.feature.logManagement.presentation.today.LogCreationState;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -33,19 +33,24 @@ public class LogsViewModel extends BaseViewModel {
     private final RestoreLogsUseCase restoreLogsUseCase;
     private final DeleteLogsUseCase deleteLogsUseCase;
     private final StringProvider stringProvider;
+    private final SyncManager syncManager;
 
     private final MutableLiveData<LogState> logState = new MutableLiveData<>();
     private final MutableLiveData<LogCreationState> logCreationState = new MutableLiveData<>();
     private final MutableLiveData<LogDeletionState> logDeletionState = new MutableLiveData<>();
 
     @Inject
-    public LogsViewModel(GetAllLogsUseCase getAllLogsUseCase, CreateLogUseCase createLogUseCase, UpdateLogUseCase updateLogUseCase, RestoreLogsUseCase restoreLogsUseCase, DeleteLogsUseCase deleteLogsUseCase, StringProvider stringProvider) {
+    public LogsViewModel(GetAllLogsUseCase getAllLogsUseCase, CreateLogUseCase createLogUseCase,
+                         UpdateLogUseCase updateLogUseCase, RestoreLogsUseCase restoreLogsUseCase,
+                         DeleteLogsUseCase deleteLogsUseCase, StringProvider stringProvider,
+                         SyncManager syncManager) {
         this.getAllLogsUseCase = getAllLogsUseCase;
         this.createLogUseCase = createLogUseCase;
         this.updateLogUseCase = updateLogUseCase;
         this.restoreLogsUseCase = restoreLogsUseCase;
         this.deleteLogsUseCase = deleteLogsUseCase;
         this.stringProvider = stringProvider;
+        this.syncManager = syncManager;
     }
 
     public LiveData<LogState> getLogState() {
@@ -72,11 +77,7 @@ public class LogsViewModel extends BaseViewModel {
 
             @Override
             public void onError(Throwable error) {
-                if (error instanceof IOException) {
-                    logState.postValue(LogState.error(stringProvider.get(R.string.error_no_network)));
-                } else {
-                    logState.postValue(LogState.error(stringProvider.get(R.string.generic_error)));
-                }
+                logState.postValue(LogState.error(stringProvider.get(R.string.generic_error)));
             }
         });
     }
@@ -88,16 +89,16 @@ public class LogsViewModel extends BaseViewModel {
         createLogUseCase.executeAsync(params, new CreateLogUseCase.UseCaseCallback<>() {
             @Override
             public void onSuccess(Log newLog) {
-                logCreationState.postValue(LogCreationState.success(newLog));
+                boolean isOnline = syncManager.isOnline();
+                String message = isOnline
+                        ? stringProvider.get(R.string.create_log_successful)
+                        : stringProvider.get(R.string.saved_offline);
+                logCreationState.postValue(LogCreationState.success(newLog, message));
             }
 
             @Override
             public void onError(Throwable error) {
-                if (error instanceof IOException) {
-                    logCreationState.postValue(LogCreationState.error(stringProvider.get(R.string.error_no_network)));
-                } else {
-                    logCreationState.postValue(LogCreationState.error(stringProvider.get(R.string.create_log_failed)));
-                }
+                logCreationState.postValue(LogCreationState.error(stringProvider.get(R.string.create_log_failed)));
             }
         });
     }
@@ -109,16 +110,16 @@ public class LogsViewModel extends BaseViewModel {
         updateLogUseCase.executeAsync(params, new UpdateLogUseCase.UseCaseCallback<>() {
             @Override
             public void onSuccess(Log newLog) {
-                logCreationState.postValue(LogCreationState.success(newLog));
+                boolean isOnline = syncManager.isOnline();
+                String message = isOnline
+                        ? stringProvider.get(R.string.update_log_successful)
+                        : stringProvider.get(R.string.saved_offline);
+                logCreationState.postValue(LogCreationState.success(newLog, message));
             }
 
             @Override
             public void onError(Throwable error) {
-                if (error instanceof IOException) {
-                    logCreationState.postValue(LogCreationState.error(stringProvider.get(R.string.error_no_network)));
-                } else {
-                    logCreationState.postValue(LogCreationState.error(stringProvider.get(R.string.update_log_failed)));
-                }
+                logCreationState.postValue(LogCreationState.error(stringProvider.get(R.string.update_log_failed)));
             }
         });
     }
@@ -135,11 +136,7 @@ public class LogsViewModel extends BaseViewModel {
 
             @Override
             public void onError(Throwable error) {
-                if (error instanceof IOException) {
-                    logCreationState.postValue(LogCreationState.error(stringProvider.get(R.string.error_no_network)));
-                } else {
-                    logCreationState.postValue(LogCreationState.error(stringProvider.get(R.string.restore_log_failed)));
-                }
+                logCreationState.postValue(LogCreationState.error(stringProvider.get(R.string.restore_log_failed)));
             }
         });
     }
@@ -156,11 +153,7 @@ public class LogsViewModel extends BaseViewModel {
 
             @Override
             public void onError(Throwable error) {
-                if (error instanceof IOException) {
-                    logDeletionState.postValue(LogDeletionState.error(stringProvider.get(R.string.error_no_network)));
-                } else {
-                    logDeletionState.postValue(LogDeletionState.error(stringProvider.get(R.string.delete_log_failed)));
-                }
+                logDeletionState.postValue(LogDeletionState.error(stringProvider.get(R.string.delete_log_failed)));
             }
         });
     }
@@ -171,5 +164,9 @@ public class LogsViewModel extends BaseViewModel {
 
     public void resetLogDeletionState() {
         logDeletionState.setValue(null);
+    }
+
+    public boolean isOnline() {
+        return syncManager.isOnline();
     }
 }

@@ -7,23 +7,29 @@ public class LogCreationState {
     private final boolean isLoading;
     private final Log log;
     private final String error;
+    private final String message;
 
-    private LogCreationState(boolean isLoading, Log log, String error) {
+    private LogCreationState(boolean isLoading, Log log, String error, String message) {
         this.isLoading = isLoading;
         this.log = log;
         this.error = error;
+        this.message = message;
     }
 
     public static LogCreationState loading() {
-        return new LogCreationState(true, null, null);
+        return new LogCreationState(true, null, null, null);
     }
 
     public static LogCreationState success(Log log) {
-        return new LogCreationState(false, log, null);
+        return new LogCreationState(false, log, null, null);
+    }
+
+    public static LogCreationState success(Log log, String message) {
+        return new LogCreationState(false, log, null, message);
     }
 
     public static LogCreationState error(String error) {
-        return new LogCreationState(false, null, error);
+        return new LogCreationState(false, null, error, null);
     }
 
     public boolean isLoading() {
@@ -36,5 +42,9 @@ public class LogCreationState {
 
     public String getError() {
         return error;
+    }
+
+    public String getMessage() {
+        return message;
     }
 }

@@ -1,5 +1,6 @@
 package com.bit.logbook.di;
 
+import com.bit.logbook.core.data.remote.LogRemoteDataSource;
 import com.bit.logbook.feature.logManagement.data.repository.LogRepositoryImpl;
 import com.bit.logbook.feature.logManagement.data.source.remote.LogApiService;
 import com.bit.logbook.feature.logManagement.domain.repository.LogRepository;

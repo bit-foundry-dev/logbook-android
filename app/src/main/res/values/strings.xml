@@ -109,4 +109,17 @@
     <string name="empty_trash">Empty trash</string>
     <string name="restore_all_confirmation">Would you like to restore all logs in the trash?</string>
     <string name="restore_log_failed">Failed to restore logs</string>
+
+    <string name="sync_status_synced">Synced</string>
+    <string name="sync_status_syncing">Syncing…</string>
+    <string name="sync_status_pending">Pending sync</string>
+    <string name="sync_status_error">Sync failed</string>
+    <string name="sync_status_pending_count">%d changes pending. Tap to sync</string>
+    <string name="sync_summary_synced">All changes saved</string>
+    <string name="sync_summary_pending">Changes pending sync</string>
+    <string name="sync_summary_error">Sync failed. Tap to retry</string>
+    <string name="sync_now">Sync now</string>
+    <string name="sync_last">Last sync: %s</string>
+    <string name="offline_banner">You are offline. Changes will sync when connected.</string>
+    <string name="saved_offline">Saved offline — will sync later</string>
 </resources>
