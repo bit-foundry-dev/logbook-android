@@ -35,7 +35,7 @@ public class LogRepositoryImpl implements LogRepository {
     }
 
     @Override
-    public List<Log> getAllLogs(LocalDate startDate, boolean isTrash) throws Exception {
+    public List<Log> getAllLogs(LocalDate startDate, boolean isTrash){
         List<LogEntity> localLogs;
         if (startDate != null) {
             localLogs = logDao.getLogsByDate(startDate.toString(), isTrash);
@@ -47,18 +47,14 @@ public class LogRepositoryImpl implements LogRepository {
             try {
                 List<LogDto> remoteLogs = remoteDataSource.getLogs(startDate, isTrash);
                 updateLocalCache(remoteLogs, isTrash);
+                // Re-fetch from local storage after syncing with remote to ensure fresh data
                 if (startDate != null) {
-                    return logDao.getLogsByDate(startDate.toString(), isTrash)
-                            .stream().map(LogRepositoryImpl::mapToLog)
-                            .collect(Collectors.toList());
+                    localLogs = logDao.getLogsByDate(startDate.toString(), isTrash);
+                } else {
+                    localLogs = logDao.getAllLogs(isTrash);
                 }
-                return logDao.getAllLogs(isTrash)
-                        .stream().map(LogRepositoryImpl::mapToLog)
-                        .collect(Collectors.toList());
             } catch (Exception e) {
-                if (localLogs.isEmpty()) {
-                    throw e;
-                }
+                // If remote fetch fails, we continue with local logs (offline-first)
             }
         }
 
@@ -66,7 +62,7 @@ public class LogRepositoryImpl implements LogRepository {
     }
 
     @Override
-    public Log createLog(CreateLogRequest request) throws Exception {
+    public Log createLog(CreateLogRequest request) {
         String tempId = UUID.randomUUID().toString();
         String startDate = request.getStartDate();
 
@@ -184,7 +180,7 @@ public class LogRepositoryImpl implements LogRepository {
                 return;
             } catch (Exception e) {
                 syncManager.onSyncStatusChanged();
-                if (!isNetworkError(e)) throw e;
+                if (isNetworkError(e)) throw e;
                 return;
             }
         }
@@ -214,7 +210,7 @@ public class LogRepositoryImpl implements LogRepository {
                 }
             } catch (Exception e) {
                 syncManager.onSyncStatusChanged();
-                if (!isNetworkError(e)) throw e;
+                if (isNetworkError(e)) throw e;
             }
         } else {
             syncManager.onSyncStatusChanged();
@@ -229,7 +225,7 @@ public class LogRepositoryImpl implements LogRepository {
                     dto.getTitle(),
                     dto.getDescription(),
                     dto.getTag(),
-                    dto.getStartDate() != null ? dto.getStartDate().toString() : null,
+                    dto.getStartDate() != null ? dto.getStartDate() : null,
                     isTrash,
                     SyncStatus.SYNCED
             );
@@ -245,9 +241,9 @@ public class LogRepositoryImpl implements LogRepository {
     }
 
     private boolean isNetworkError(Exception e) {
-        return e instanceof java.net.UnknownHostException
-                || e instanceof java.net.ConnectException
-                || e instanceof java.net.SocketTimeoutException;
+        return !(e instanceof java.net.UnknownHostException)
+                && !(e instanceof java.net.ConnectException)
+                && !(e instanceof java.net.SocketTimeoutException);
     }
 
     private static Log mapToLog(LogEntity entity) {
